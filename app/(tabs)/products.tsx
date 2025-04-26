@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -28,7 +28,7 @@ const { width, height } = Dimensions.get('window');
 export default function ProductsScreen() {
   const [visibleMenu, setVisibleMenu] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isAddModalVisible, setIsAddModalVisible] = useState<boolean>(false);
   const [isOptionsModalVisible, setIsOptionsModalVisible] = useState<boolean>(false);
@@ -52,13 +52,41 @@ export default function ProductsScreen() {
   useEffect(() => {
     // Load products and categories from local storage on component mount
     const loadData = async () => {
-      const products = await getProducts();
-      const categories = await getCategories();
-      setFilteredProducts(products);
-      setCategories(categories);
+      const loadedProducts = await getProducts();
+      const loadedCategories = await getCategories();
+      setProducts(loadedProducts);
+      setCategories(loadedCategories);
     };
     loadData();
   }, []);
+
+  // Filter products based on search query
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return products;
+    }
+    
+    const normalizedQuery = searchQuery.toLowerCase().trim();
+    
+    return products.filter(product => {
+      // Search in product name
+      if (product.name.toLowerCase().includes(normalizedQuery)) {
+        return true;
+      }
+      
+      // Search in category
+      if (product.category && product.category.toLowerCase().includes(normalizedQuery)) {
+        return true;
+      }
+      
+      // Search in quantity (as string)
+      if (product.quantity.toString().includes(normalizedQuery)) {
+        return true;
+      }
+      
+      return false;
+    });
+  }, [products, searchQuery]);
 
   // Animation functions
   const animateModal = (visible: boolean, animationValue: Animated.Value) => {
@@ -82,6 +110,14 @@ export default function ProductsScreen() {
     animateModal(isOptionsModalVisible, optionsModalAnimation);
   }, [isOptionsModalVisible]);
 
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+  };
+
   const handleAddProduct = () => {
     setIsAddModalVisible(true);
   };
@@ -90,7 +126,7 @@ export default function ProductsScreen() {
     if (newProduct.name && newProduct.quantity > 0) {
       try {
         const savedProduct = await addProduct(newProduct);
-        setFilteredProducts((prev) => [...prev, savedProduct]);
+        setProducts((prev) => [...prev, savedProduct]);
         setNewProduct({ name: '', quantity: 0, category: '', image: '', lowStockThreshold: 10 });
         setIsAddModalVisible(false);
       } catch (error) {
@@ -105,7 +141,7 @@ export default function ProductsScreen() {
     if (editProduct && editProduct.name && editProduct.quantity > 0) {
       try {
         const updatedProduct = await updateProduct(editProduct);
-        setFilteredProducts((prev) => 
+        setProducts((prev) => 
           prev.map(p => p.id === updatedProduct.id ? updatedProduct : p)
         );
         setEditProduct(null);
@@ -122,7 +158,7 @@ export default function ProductsScreen() {
     if (selectedProduct) {
       try {
         await deleteProduct(selectedProduct.id);
-        setFilteredProducts((prev) => prev.filter(p => p.id !== selectedProduct.id));
+        setProducts((prev) => prev.filter(p => p.id !== selectedProduct.id));
         setSelectedProduct(null);
         setIsDeleteConfirmVisible(false);
         setIsOptionsModalVisible(false);
@@ -255,15 +291,18 @@ export default function ProductsScreen() {
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
         <View style={styles.contentContainer}>
-          <Searchbar
-            placeholder="Search products or categories"
-            onChangeText={setSearchQuery}
-            value={searchQuery}
-            style={styles.searchBar}
-            iconColor="#2f95dc"
-            placeholderTextColor="#9E9E9E"
-            inputStyle={styles.searchInput}
-          />
+          <View style={styles.searchBarContainer}>
+            <Searchbar
+              placeholder="Search products or categories"
+              onChangeText={handleSearch}
+              onClearIconPress={clearSearch}
+              value={searchQuery}
+              style={styles.searchBar}
+              iconColor="#2f95dc"
+              placeholderTextColor="#9E9E9E"
+              inputStyle={styles.searchInput}
+            />
+          </View>
 
           <FlatList
             data={filteredProducts}
@@ -271,6 +310,22 @@ export default function ProductsScreen() {
             renderItem={renderProductItem}
             contentContainerStyle={styles.productList}
             showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <View style={styles.emptyContainer}>
+                <Image 
+                  source={{ uri: 'https://via.placeholder.com/150?text=Empty' }} 
+                  style={styles.emptyImage} 
+                />
+                <Text style={styles.emptyText}>
+                  {searchQuery.trim() ? 'No matching products found' : 'No products found'}
+                </Text>
+                <Text style={styles.emptySubtext}>
+                  {searchQuery.trim() 
+                    ? 'Try a different search term' 
+                    : 'Add a new product to get started'}
+                </Text>
+              </View>
+            }
           />
 
           <FAB
@@ -305,7 +360,7 @@ export default function ProductsScreen() {
                   onPress={handleEditOption}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.optionIconContainer, { backgroundColor: 'rgba(98, 0, 238, 0.1)' }]}>
+                  <View style={[styles.optionIconContainer, { backgroundColor: 'rgba(47, 149, 220, 0.1)' }]}>
                     <MaterialCommunityIcons name="pencil-outline" size={22} color="#2f95dc" />
                   </View>
                   <Text style={styles.optionText}>Edit Product</Text>
@@ -550,29 +605,26 @@ const styles = StyleSheet.create({
     paddingTop: StatusBar.currentHeight || 0, // Add padding for status bar
     backgroundColor: 'rgba(248, 249, 250, 0.85)', // Semi-transparent background
   },
-  header: { 
-    padding: 20, 
-    backgroundColor: 'rgba(255, 255, 255, 0.9)', 
-    borderBottomWidth: 1, 
-    borderBottomColor: '#f0f0f0',
-    elevation: 2,
-  },
-  title: { 
-    fontSize: 28, 
-    fontWeight: 'bold', 
-    color: '#212121',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: '#757575',
+  searchBarContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
   },
   searchBar: { 
-    margin: 16, 
-    elevation: 2, 
-    backgroundColor: '#fff', 
     borderRadius: 12,
     height: 50,
+    backgroundColor: '#fff',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 10,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
   },
   searchInput: {
     fontSize: 16,
@@ -587,6 +639,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     backgroundColor: 'rgba(255, 255, 255, 0.95)', // Slightly transparent cards
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+    }),
   },
   productContainer: { 
     flexDirection: 'row', 
@@ -666,6 +726,17 @@ const styles = StyleSheet.create({
     bottom: 0, 
     backgroundColor: '#2f95dc',
     borderRadius: 28,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.2,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 8,
+      },
+    }),
   },
   emptyContainer: { 
     alignItems: 'center', 
@@ -674,6 +745,18 @@ const styles = StyleSheet.create({
     marginTop: 40,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
     borderRadius: 16,
+    marginHorizontal: 16,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   emptyImage: {
     width: 120,
