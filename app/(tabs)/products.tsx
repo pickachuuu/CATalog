@@ -260,7 +260,7 @@ export default function ProductsScreen() {
             onChangeText={setSearchQuery}
             value={searchQuery}
             style={styles.searchBar}
-            iconColor="#6200EE"
+            iconColor="#2f95dc"
             placeholderTextColor="#9E9E9E"
             inputStyle={styles.searchInput}
           />
@@ -306,7 +306,7 @@ export default function ProductsScreen() {
                   activeOpacity={0.7}
                 >
                   <View style={[styles.optionIconContainer, { backgroundColor: 'rgba(98, 0, 238, 0.1)' }]}>
-                    <MaterialCommunityIcons name="pencil-outline" size={22} color="#6200EE" />
+                    <MaterialCommunityIcons name="pencil-outline" size={22} color="#2f95dc" />
                   </View>
                   <Text style={styles.optionText}>Edit Product</Text>
                 </TouchableOpacity>
@@ -394,7 +394,6 @@ export default function ProductsScreen() {
             >
               <View style={styles.modalContent}>
                 <View style={styles.modalHeader}>
-                  <View style={styles.modalDragIndicator} />
                   <Text style={styles.modalTitle}>
                     {isAddModalVisible ? 'Add New Product' : 'Edit Product'}
                   </Text>
@@ -502,7 +501,7 @@ export default function ProductsScreen() {
                         />
                       ) : (
                         <View style={styles.imagePickerPlaceholder}>
-                          <MaterialCommunityIcons name="camera-outline" size={32} color="#6200EE" />
+                          <MaterialCommunityIcons name="camera-outline" size={32} color="#2f95dc" />
                           <Text style={styles.imagePickerText}>Select Image</Text>
                         </View>
                       )}
@@ -806,7 +805,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FAFAFA',
   },
   imagePickerText: { 
-    color: '#6200EE', 
+    color: '#2f95dc', 
     fontWeight: '500',
     marginTop: 8,
   },
@@ -844,7 +843,7 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     marginLeft: 8,
-    backgroundColor: '#6200EE',
+    backgroundColor: '##2f95dc',
   },
   deleteButton: {
     marginLeft: 8,
