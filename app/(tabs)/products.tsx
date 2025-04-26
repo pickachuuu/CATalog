@@ -843,7 +843,7 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     marginLeft: 8,
-    backgroundColor: '##2f95dc',
+    backgroundColor: '#2f95dc',
   },
   deleteButton: {
     marginLeft: 8,
