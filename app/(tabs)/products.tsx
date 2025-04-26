@@ -11,21 +11,29 @@ import {
   TouchableOpacity,
   StatusBar,
   Dimensions,
+  Animated,
+  Easing,
+  Platform,
 } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import { Card, Menu, Divider, IconButton, Searchbar, FAB } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import { Product, Category } from '@/types/types';
-import { addProduct, getProducts, getCategories } from '@/services/storage';
+import { addProduct, getProducts, getCategories, updateProduct, deleteProduct } from '@/services/storage';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 export default function ProductsScreen() {
   const [visibleMenu, setVisibleMenu] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [isAddModalVisible, setIsAddModalVisible] = useState<boolean>(false);
+  const [isOptionsModalVisible, setIsOptionsModalVisible] = useState<boolean>(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState<boolean>(false);
+  const [isDeleteConfirmVisible, setIsDeleteConfirmVisible] = useState<boolean>(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({
     name: '',
     quantity: 0,
@@ -33,6 +41,12 @@ export default function ProductsScreen() {
     image: '',
     lowStockThreshold: 10,
   });
+  const [editProduct, setEditProduct] = useState<Product | null>(null);
+  
+  // Animation values
+  const [modalAnimation] = useState(new Animated.Value(0));
+  const [deleteModalAnimation] = useState(new Animated.Value(0));
+  const [optionsModalAnimation] = useState(new Animated.Value(0));
 
   useEffect(() => {
     // Load products and categories from local storage on component mount
@@ -45,8 +59,30 @@ export default function ProductsScreen() {
     loadData();
   }, []);
 
+  // Animation functions
+  const animateModal = (visible: boolean, animationValue: Animated.Value) => {
+    Animated.timing(animationValue, {
+      toValue: visible ? 1 : 0,
+      duration: 300,
+      easing: Easing.bezier(0.2, 0.65, 0.4, 0.9),
+      useNativeDriver: true,
+    }).start();
+  };
+
+  useEffect(() => {
+    animateModal(isAddModalVisible || isEditModalVisible, modalAnimation);
+  }, [isAddModalVisible, isEditModalVisible]);
+
+  useEffect(() => {
+    animateModal(isDeleteConfirmVisible, deleteModalAnimation);
+  }, [isDeleteConfirmVisible]);
+
+  useEffect(() => {
+    animateModal(isOptionsModalVisible, optionsModalAnimation);
+  }, [isOptionsModalVisible]);
+
   const handleAddProduct = () => {
-    setIsModalVisible(true);
+    setIsAddModalVisible(true);
   };
 
   const handleSaveProduct = async () => {
@@ -55,7 +91,7 @@ export default function ProductsScreen() {
         const savedProduct = await addProduct(newProduct);
         setFilteredProducts((prev) => [...prev, savedProduct]);
         setNewProduct({ name: '', quantity: 0, category: '', image: '', lowStockThreshold: 10 });
-        setIsModalVisible(false);
+        setIsAddModalVisible(false);
       } catch (error) {
         console.error('Error saving product:', error);
       }
@@ -64,7 +100,38 @@ export default function ProductsScreen() {
     }
   };
 
-  const handlePickImage = async () => {
+  const handleUpdateProduct = async () => {
+    if (editProduct && editProduct.name && editProduct.quantity > 0) {
+      try {
+        const updatedProduct = await updateProduct(editProduct);
+        setFilteredProducts((prev) => 
+          prev.map(p => p.id === updatedProduct.id ? updatedProduct : p)
+        );
+        setEditProduct(null);
+        setIsEditModalVisible(false);
+      } catch (error) {
+        console.error('Error updating product:', error);
+      }
+    } else {
+      alert('Please fill out all required fields.');
+    }
+  };
+
+  const handleDeleteProduct = async () => {
+    if (selectedProduct) {
+      try {
+        await deleteProduct(selectedProduct.id);
+        setFilteredProducts((prev) => prev.filter(p => p.id !== selectedProduct.id));
+        setSelectedProduct(null);
+        setIsDeleteConfirmVisible(false);
+        setIsOptionsModalVisible(false);
+      } catch (error) {
+        console.error('Error deleting product:', error);
+      }
+    }
+  };
+
+  const handlePickImage = async (isEdit = false) => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
       alert('Permission to access gallery is required!');
@@ -78,8 +145,31 @@ export default function ProductsScreen() {
     });
 
     if (!result.canceled) {
-      setNewProduct({ ...newProduct, image: result.assets[0].uri });
+      if (isEdit && editProduct) {
+        setEditProduct({ ...editProduct, image: result.assets[0].uri });
+      } else {
+        setNewProduct({ ...newProduct, image: result.assets[0].uri });
+      }
     }
+  };
+
+  const openOptionsModal = (product: Product) => {
+    setSelectedProduct(product);
+    setIsOptionsModalVisible(true);
+    setVisibleMenu(null);
+  };
+
+  const handleEditOption = () => {
+    if (selectedProduct) {
+      setEditProduct(selectedProduct);
+      setIsOptionsModalVisible(false);
+      setIsEditModalVisible(true);
+    }
+  };
+
+  const handleDeleteOption = () => {
+    setIsOptionsModalVisible(false);
+    setIsDeleteConfirmVisible(true);
   };
 
   const getStockStatusColor = (quantity: number, threshold: number = 10) => {
@@ -119,30 +209,41 @@ export default function ProductsScreen() {
             </View>
           )}
         </View>
-        <Menu
-          visible={visibleMenu === item.id}
-          onDismiss={() => setVisibleMenu(null)}
-          anchor={
-            <IconButton
-              icon="dots-vertical"
-              size={24}
-              onPress={() => setVisibleMenu(item.id)}
-              style={styles.menuButton}
-            />
-          }
-        >
-          <Menu.Item onPress={() => console.log(`Edit product: ${item.name}`)} title="Edit" leadingIcon="pencil" />
-          <Divider />
-          <Menu.Item 
-            onPress={() => console.log(`Delete product: ${item.name}`)} 
-            title="Delete" 
-            leadingIcon="delete" 
-            titleStyle={{ color: '#FF5252' }}
-          />
-        </Menu>
+        <IconButton
+          icon="dots-vertical"
+          size={24}
+          onPress={() => openOptionsModal(item)}
+          style={styles.menuButton}
+        />
       </View>
     </Card>
   );
+
+  // Modal transform animations
+  const modalTranslateY = modalAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [height, 0],
+  });
+
+  const optionsScale = optionsModalAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.8, 1],
+  });
+
+  const optionsOpacity = optionsModalAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
+
+  const deleteScale = deleteModalAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.8, 1],
+  });
+
+  const deleteOpacity = deleteModalAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, 1],
+  });
 
   return (
     <SafeAreaView style={styles.container}>
@@ -184,110 +285,252 @@ export default function ProductsScreen() {
         uppercase={false}
       />
 
-      {/* Modal for Adding Product */}
-      <Modal visible={isModalVisible} animationType="slide" transparent={true}>
+      {/* Options Modal */}
+      <Modal visible={isOptionsModalVisible} animationType="none" transparent={true}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Add New Product</Text>
-                <IconButton
-                  icon="close"
-                  size={24}
-                  onPress={() => setIsModalVisible(false)}
-                  style={styles.closeButton}
-                />
+          <Animated.View 
+            style={[
+              styles.optionsModalContainer,
+              {
+                opacity: optionsOpacity,
+                transform: [{ scale: optionsScale }]
+              }
+            ]}
+          >
+            <View style={styles.optionsModalContent}>
+              <View style={styles.optionsModalHeader}>
+                <Text style={styles.optionsModalTitle}>Product Options</Text>
               </View>
-
-              <View style={styles.formGroup}>
-                <Text style={styles.label}>Product Name</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="Enter product name"
-                  value={newProduct.name}
-                  onChangeText={(text) => setNewProduct({ ...newProduct, name: text })}
-                  placeholderTextColor="#9E9E9E"
-                />
-              </View>
-
-              <View style={styles.formGroup}>
-                <Text style={styles.label}>Category (Optional)</Text>
-                <View style={styles.pickerContainer}>
-                  <RNPickerSelect
-                    onValueChange={(value) => setNewProduct({ ...newProduct, category: value })}
-                    items={categories.map((category) => ({
-                      label: category.name,
-                      value: category.name,
-                    }))}
-                    placeholder={{
-                      label: categories.length > 0 ? 'Select a category' : 'No categories available',
-                      value: null,
-                    }}
-                    style={{
-                      inputIOS: styles.pickerInput,
-                      inputAndroid: styles.pickerInput,
-                    }}
-                  />
+              
+              <TouchableOpacity 
+                style={styles.optionButton} 
+                onPress={handleEditOption}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.optionIconContainer, { backgroundColor: 'rgba(98, 0, 238, 0.1)' }]}>
+                  <MaterialCommunityIcons name="pencil-outline" size={22} color="#6200EE" />
                 </View>
-              </View>
-
-              <View style={styles.formRow}>
-                <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
-                  <Text style={styles.label}>Quantity</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="0"
-                    keyboardType="numeric"
-                    value={newProduct.quantity.toString()}
-                    onChangeText={(text) => setNewProduct({ ...newProduct, quantity: parseInt(text) || 0 })}
-                    placeholderTextColor="#9E9E9E"
-                  />
+                <Text style={styles.optionText}>Edit Product</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.optionButton} 
+                onPress={handleDeleteOption}
+                activeOpacity={0.7}
+              >
+                <View style={[styles.optionIconContainer, { backgroundColor: 'rgba(255, 82, 82, 0.1)' }]}>
+                  <MaterialCommunityIcons name="delete-outline" size={22} color="#FF5252" />
                 </View>
-                <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
-                  <Text style={styles.label}>Low Stock Alert</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder="10"
-                    keyboardType="numeric"
-                    value={newProduct.lowStockThreshold?.toString() || ''}
-                    onChangeText={(text) =>
-                      setNewProduct({ ...newProduct, lowStockThreshold: parseInt(text) || 10 })
-                    }
-                    placeholderTextColor="#9E9E9E"
-                  />
-                </View>
-              </View>
+                <Text style={[styles.optionText, { color: '#FF5252' }]}>Delete Product</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={styles.cancelOptionButton} 
+                onPress={() => setIsOptionsModalVisible(false)}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        </View>
+      </Modal>
 
-              <View style={styles.formGroup}>
-                <Text style={styles.label}>Product Image</Text>
-                <TouchableOpacity onPress={handlePickImage} style={styles.imagePicker}>
-                  {newProduct.image ? (
-                    <Image source={{ uri: newProduct.image }} style={styles.previewImage} />
-                  ) : (
-                    <View style={styles.imagePickerPlaceholder}>
-                      <IconButton icon="camera" size={24} style={styles.cameraIcon} />
-                      <Text style={styles.imagePickerText}>Select Image</Text>
-                    </View>
-                  )}
-                </TouchableOpacity>
+      {/* Delete Confirmation Modal */}
+      <Modal visible={isDeleteConfirmVisible} animationType="none" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <Animated.View 
+            style={[
+              styles.confirmModalContainer,
+              {
+                opacity: deleteOpacity,
+                transform: [{ scale: deleteScale }]
+              }
+            ]}
+          >
+            <View style={styles.confirmModalContent}>
+              <View style={styles.deleteIconContainer}>
+                <MaterialCommunityIcons name="alert-circle-outline" size={40} color="#FF5252" />
               </View>
-
-              <View style={styles.modalButtons}>
+              
+              <Text style={styles.confirmModalTitle}>Delete Product</Text>
+              <Text style={styles.confirmModalText}>
+                Are you sure you want to delete "{selectedProduct?.name}"? This action cannot be undone.
+              </Text>
+              
+              <View style={styles.confirmModalButtons}>
                 <TouchableOpacity 
                   style={[styles.button, styles.cancelButton]} 
-                  onPress={() => setIsModalVisible(false)}
+                  onPress={() => setIsDeleteConfirmVisible(false)}
+                  activeOpacity={0.7}
                 >
                   <Text style={styles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
-                  style={[styles.button, styles.saveButton]} 
-                  onPress={handleSaveProduct}
+                  style={[styles.button, styles.deleteButton]} 
+                  onPress={handleDeleteProduct}
+                  activeOpacity={0.7}
                 >
-                  <Text style={styles.saveButtonText}>Save Product</Text>
+                  <Text style={styles.deleteButtonText}>Delete</Text>
                 </TouchableOpacity>
               </View>
             </View>
-          </View>
+          </Animated.View>
+        </View>
+      </Modal>
+
+      {/* Modal for Adding/Editing Product */}
+      <Modal 
+        visible={isAddModalVisible || isEditModalVisible} 
+        animationType="none" 
+        transparent={true}
+      >
+        <View style={styles.modalOverlay}>
+          <Animated.View 
+            style={[
+              styles.modalContainer,
+              {
+                transform: [{ translateY: modalTranslateY }]
+              }
+            ]}
+          >
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>
+                  {isAddModalVisible ? 'Add New Product' : 'Edit Product'}
+                </Text>
+                <IconButton
+                  icon="close"
+                  size={24}
+                  onPress={() => isAddModalVisible ? setIsAddModalVisible(false) : setIsEditModalVisible(false)}
+                  style={styles.closeButton}
+                />
+              </View>
+
+              {/* Form content for Add or Edit */}
+              <View style={styles.formContainer}>
+                <View style={styles.formGroup}>
+                  <Text style={styles.label}>Product Name</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Enter product name"
+                    value={isAddModalVisible ? newProduct.name : editProduct?.name || ''}
+                    onChangeText={(text) => 
+                      isAddModalVisible 
+                        ? setNewProduct({ ...newProduct, name: text })
+                        : setEditProduct({ ...editProduct!, name: text })
+                    }
+                    placeholderTextColor="#9E9E9E"
+                  />
+                </View>
+
+                <View style={styles.formGroup}>
+                  <Text style={styles.label}>Category (Optional)</Text>
+                  <View style={styles.pickerContainer}>
+                    <RNPickerSelect
+                      onValueChange={(value) => 
+                        isAddModalVisible 
+                          ? setNewProduct({ ...newProduct, category: value })
+                          : setEditProduct({ ...editProduct!, category: value })
+                      }
+                      value={isAddModalVisible ? newProduct.category : editProduct?.category || ''}
+                      items={categories.map((category) => ({
+                        label: category.name,
+                        value: category.name,
+                      }))}
+                      placeholder={{
+                        label: categories.length > 0 ? 'Select a category' : 'No categories available',
+                        value: null,
+                      }}
+                      style={{
+                        inputIOS: styles.pickerInput,
+                        inputAndroid: styles.pickerInput,
+                      }}
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.formRow}>
+                  <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
+                    <Text style={styles.label}>Quantity</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="0"
+                      keyboardType="numeric"
+                      value={isAddModalVisible 
+                        ? newProduct.quantity.toString() 
+                        : editProduct?.quantity.toString() || '0'
+                      }
+                      onChangeText={(text) => 
+                        isAddModalVisible 
+                          ? setNewProduct({ ...newProduct, quantity: parseInt(text) || 0 })
+                          : setEditProduct({ ...editProduct!, quantity: parseInt(text) || 0 })
+                      }
+                      placeholderTextColor="#9E9E9E"
+                    />
+                  </View>
+                  <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
+                    <Text style={styles.label}>Low Stock Alert</Text>
+                    <TextInput
+                      style={styles.input}
+                      placeholder="10"
+                      keyboardType="numeric"
+                      value={isAddModalVisible 
+                        ? newProduct.lowStockThreshold?.toString() || '' 
+                        : editProduct?.lowStockThreshold?.toString() || ''
+                      }
+                      onChangeText={(text) =>
+                        isAddModalVisible
+                          ? setNewProduct({ ...newProduct, lowStockThreshold: parseInt(text) || 10 })
+                          : setEditProduct({ ...editProduct!, lowStockThreshold: parseInt(text) || 10 })
+                      }
+                      placeholderTextColor="#9E9E9E"
+                    />
+                  </View>
+                </View>
+
+                <View style={styles.formGroup}>
+                  <Text style={styles.label}>Product Image</Text>
+                  <TouchableOpacity 
+                    onPress={() => handlePickImage(!isAddModalVisible)} 
+                    style={styles.imagePicker}
+                    activeOpacity={0.8}
+                  >
+                    {(isAddModalVisible ? newProduct.image : editProduct?.image) ? (
+                      <Image 
+                        source={{ uri: isAddModalVisible ? newProduct.image : editProduct?.image }} 
+                        style={styles.previewImage} 
+                      />
+                    ) : (
+                      <View style={styles.imagePickerPlaceholder}>
+                        <MaterialCommunityIcons name="camera-outline" size={32} color="#6200EE" />
+                        <Text style={styles.imagePickerText}>Select Image</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.modalButtons}>
+                  <TouchableOpacity 
+                    style={[styles.button, styles.cancelButton]} 
+                    onPress={() => isAddModalVisible ? setIsAddModalVisible(false) : setIsEditModalVisible(false)}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity 
+                    style={[styles.button, styles.saveButton]} 
+                    onPress={isAddModalVisible ? handleSaveProduct : handleUpdateProduct}
+                    activeOpacity={0.7}
+                  >
+                    <Text style={styles.saveButtonText}>
+                      {isAddModalVisible ? 'Save Product' : 'Update Product'}
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
+          </Animated.View>
         </View>
       </Modal>
     </SafeAreaView>
@@ -412,7 +655,7 @@ const styles = StyleSheet.create({
     margin: 16, 
     right: 0, 
     bottom: 0, 
-    backgroundColor: '#6200EE',
+    backgroundColor: '#2f95dc',
     borderRadius: 28,
   },
   emptyContainer: { 
@@ -447,40 +690,66 @@ const styles = StyleSheet.create({
   },
   modalContainer: { 
     width: '100%',
-    justifyContent: 'center', 
+    justifyContent: 'flex-end', 
     alignItems: 'center',
+    height: '100%',
   },
   modalContent: { 
-    width: width * 0.9, 
+    width: '100%', 
     backgroundColor: '#fff', 
-    padding: 24, 
-    borderRadius: 16,
-    elevation: 5,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    overflow: 'hidden',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -3 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+      },
+      android: {
+        elevation: 24,
+      },
+    }),
   },
   modalHeader: {
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 16,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  modalDragIndicator: {
+    width: 40,
+    height: 5,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 2.5,
+    alignSelf: 'center',
+    marginBottom: 10,
   },
   modalTitle: { 
-    fontSize: 22, 
+    fontSize: 20, 
     fontWeight: 'bold',
     color: '#212121',
+    flex: 1,
+    textAlign: 'center',
   },
   closeButton: {
     margin: 0,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: 'transparent',
   },
-  cameraIcon: {
-    backgroundColor: '#f0f0f0',
+  formContainer: {
+    padding: 24,
   },
   formGroup: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
   formRow: {
     flexDirection: 'row',
-    marginBottom: 16,
+    marginBottom: 20,
   },
   label: { 
     fontSize: 14, 
@@ -495,12 +764,15 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
     backgroundColor: '#FAFAFA',
+    height: 50,
   },
   pickerContainer: {
     borderWidth: 1,
     borderColor: '#E0E0E0',
     borderRadius: 12,
     backgroundColor: '#FAFAFA',
+    height: 50,
+    justifyContent: 'center',
   },
   pickerInput: { 
     fontSize: 16,
@@ -512,7 +784,8 @@ const styles = StyleSheet.create({
     borderColor: '#E0E0E0',
     borderRadius: 12,
     overflow: 'hidden',
-    height: 120,
+    height: 150,
+    backgroundColor: '#FAFAFA',
   },
   imagePickerPlaceholder: {
     height: '100%',
@@ -523,7 +796,7 @@ const styles = StyleSheet.create({
   imagePickerText: { 
     color: '#6200EE', 
     fontWeight: '500',
-    marginTop: 4,
+    marginTop: 8,
   },
   previewImage: {
     width: '100%',
@@ -533,14 +806,25 @@ const styles = StyleSheet.create({
   modalButtons: { 
     flexDirection: 'row', 
     justifyContent: 'space-between',
-    marginTop: 24,
+    marginTop: 8,
   },
   button: {
     flex: 1,
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
   cancelButton: {
     marginRight: 8,
@@ -548,7 +832,11 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     marginLeft: 8,
-    backgroundColor: '#6200EE',
+    backgroundColor: '#2f95dc',
+  },
+  deleteButton: {
+    marginLeft: 8,
+    backgroundColor: '#FF5252',
   },
   cancelButtonText: {
     color: '#616161',
@@ -559,5 +847,128 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '600',
     fontSize: 16,
+  },
+  deleteButtonText: {
+    color: '#FFFFFF',
+    fontWeight: '600',
+    fontSize: 16,
+  },
+  // Options Modal Styles
+  optionsModalContainer: {
+    width: width * 0.85,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 10,
+      },
+      android: {
+        elevation: 24,
+      },
+    }),
+  },
+  optionsModalContent: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  optionsModalHeader: {
+    padding: 16,
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  optionsModalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#212121',
+    marginBottom: 8,
+  },
+  optionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  optionIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  optionIcon: {
+    margin: 0,
+    marginRight: 8,
+  },
+  optionText: {
+    fontSize: 16,
+    color: '#212121',
+    fontWeight: '500',
+  },
+  cancelOptionButton: {
+    padding: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  // Confirm Delete Modal Styles
+  confirmModalContainer: {
+    width: width * 0.85,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 10,
+      },
+      android: {
+        elevation: 24,
+      },
+    }),
+  },
+  confirmModalContent: {
+    width: '100%',
+    backgroundColor: '#fff',
+    padding: 24,
+    borderRadius: 16,
+    alignItems: 'center',
+  },
+  deleteIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(255, 82, 82, 0.1)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+  },
+  confirmModalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#FF5252',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  confirmModalText: {
+    fontSize: 16,
+    color: '#424242',
+    marginBottom: 24,
+    textAlign: 'center',
+    lineHeight: 24,
+  },
+  confirmModalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
   },
 });
