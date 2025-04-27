@@ -14,6 +14,8 @@ import {
   Easing,
   Platform,
   ImageBackground,
+  ScrollView,
+  KeyboardAvoidingView,
 } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import { Card, Menu, Divider, IconButton, Searchbar, FAB } from 'react-native-paper';
@@ -437,153 +439,164 @@ export default function ProductsScreen() {
           animationType="none" 
           transparent={true}
         >
-          <View style={commonStyles.modalOverlay}>
-            <Animated.View 
-              style={[
-                commonStyles.modalContainer,
-                {
-                  transform: [{ translateY: modalTranslateY }]
-                }
-              ]}
-            >
-              <View style={commonStyles.modalContent}>
-                <View style={commonStyles.modalHeader}>
-                  <Text style={commonStyles.modalTitle}>
-                    {isAddModalVisible ? 'Add New Product' : 'Edit Product'}
-                  </Text>
-                  <IconButton
-                    icon="close"
-                    size={24}
-                    onPress={() => isAddModalVisible ? setIsAddModalVisible(false) : setIsEditModalVisible(false)}
-                    style={commonStyles.closeButton}
-                  />
-                </View>
-
-                {/* Form content for Add or Edit */}
-                <View style={commonStyles.formContainer}>
-                  <View style={commonStyles.formGroup}>
-                    <Text style={commonStyles.label}>Product Name</Text>
-                    <TextInput
-                      style={commonStyles.input}
-                      placeholder="Enter product name"
-                      value={isAddModalVisible ? newProduct.name : editProduct?.name || ''}
-                      onChangeText={(text) => 
-                        isAddModalVisible 
-                          ? setNewProduct({ ...newProduct, name: text })
-                          : setEditProduct({ ...editProduct!, name: text })
-                      }
-                      placeholderTextColor="#9E9E9E"
+          <KeyboardAvoidingView 
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{ flex: 1 }}
+          >
+            <View style={commonStyles.modalOverlay}>
+              <Animated.View 
+                style={[
+                  commonStyles.modalContainer,
+                  {
+                    transform: [{ translateY: modalTranslateY }]
+                  }
+                ]}
+              >
+                <View style={commonStyles.modalContent}>
+                  <View style={commonStyles.modalHeader}>
+                    <Text style={commonStyles.modalTitle}>
+                      {isAddModalVisible ? 'Add New Product' : 'Edit Product'}
+                    </Text>
+                    <IconButton
+                      icon="close"
+                      size={24}
+                      onPress={() => isAddModalVisible ? setIsAddModalVisible(false) : setIsEditModalVisible(false)}
+                      style={commonStyles.closeButton}
                     />
                   </View>
 
-                  <View style={commonStyles.formGroup}>
-                    <Text style={commonStyles.label}>Category (Optional)</Text>
-                    <View style={commonStyles.pickerContainer}>
-                      <RNPickerSelect
-                        onValueChange={(value) => 
-                          isAddModalVisible 
-                            ? setNewProduct({ ...newProduct, category: value })
-                            : setEditProduct({ ...editProduct!, category: value })
-                        }
-                        value={isAddModalVisible ? newProduct.category : editProduct?.category || ''}
-                        items={categories.map((category) => ({
-                          label: category.name,
-                          value: category.name,
-                        }))}
-                        placeholder={{
-                          label: categories.length > 0 ? 'Select a category' : 'No categories available',
-                          value: null,
-                        }}
-                        style={{
-                          inputIOS: commonStyles.pickerInput,
-                          inputAndroid: commonStyles.pickerInput,
-                        }}
-                      />
-                    </View>
-                  </View>
-
-                  <View style={commonStyles.formRow}>
-                    <View style={[commonStyles.formGroup, { flex: 1, marginRight: 8 }]}>
-                      <Text style={commonStyles.label}>Quantity</Text>
-                      <TextInput
-                        style={commonStyles.input}
-                        placeholder="0"
-                        keyboardType="numeric"
-                        value={isAddModalVisible 
-                          ? newProduct.quantity.toString() 
-                          : editProduct?.quantity.toString() || '0'
-                        }
-                        onChangeText={(text) => 
-                          isAddModalVisible 
-                            ? setNewProduct({ ...newProduct, quantity: parseInt(text) || 0 })
-                            : setEditProduct({ ...editProduct!, quantity: parseInt(text) || 0 })
-                        }
-                        placeholderTextColor="#9E9E9E"
-                      />
-                    </View>
-                    <View style={[commonStyles.formGroup, { flex: 1, marginLeft: 8 }]}>
-                      <Text style={commonStyles.label}>Low Stock Alert</Text>
-                      <TextInput
-                        style={commonStyles.input}
-                        placeholder="10"
-                        keyboardType="numeric"
-                        value={isAddModalVisible 
-                          ? newProduct.lowStockThreshold?.toString() || '' 
-                          : editProduct?.lowStockThreshold?.toString() || ''
-                        }
-                        onChangeText={(text) =>
-                          isAddModalVisible
-                            ? setNewProduct({ ...newProduct, lowStockThreshold: parseInt(text) || 10 })
-                            : setEditProduct({ ...editProduct!, lowStockThreshold: parseInt(text) || 10 })
-                        }
-                        placeholderTextColor="#9E9E9E"
-                      />
-                    </View>
-                  </View>
-
-                  <View style={commonStyles.formGroup}>
-                    <Text style={commonStyles.label}>Product Image</Text>
-                    <TouchableOpacity 
-                      onPress={() => handlePickImage(!isAddModalVisible)} 
-                      style={commonStyles.imagePicker}
-                      activeOpacity={0.8}
-                    >
-                      {(isAddModalVisible ? newProduct.image : editProduct?.image) ? (
-                        <Image 
-                          source={{ uri: isAddModalVisible ? newProduct.image : editProduct?.image }} 
-                          style={commonStyles.previewImage} 
+                  {/* Form content for Add or Edit */}
+                  <ScrollView 
+                    style={{ flex: 1 }}
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                    showsVerticalScrollIndicator={true}
+                  >
+                    <View style={commonStyles.formContainer}>
+                      <View style={commonStyles.formGroup}>
+                        <Text style={commonStyles.label}>Product Name</Text>
+                        <TextInput
+                          style={commonStyles.input}
+                          placeholder="Enter product name"
+                          value={isAddModalVisible ? newProduct.name : editProduct?.name || ''}
+                          onChangeText={(text) => 
+                            isAddModalVisible 
+                              ? setNewProduct({ ...newProduct, name: text })
+                              : setEditProduct({ ...editProduct!, name: text })
+                          }
+                          placeholderTextColor="#9E9E9E"
                         />
-                      ) : (
-                        <View style={commonStyles.imagePickerPlaceholder}>
-                          <MaterialCommunityIcons name="camera-outline" size={32} color="#2f95dc" />
-                          <Text style={commonStyles.imagePickerText}>Select Image</Text>
-                        </View>
-                      )}
-                    </TouchableOpacity>
-                  </View>
+                      </View>
 
-                  <View style={commonStyles.modalButtons}>
-                    <TouchableOpacity 
-                      style={[commonStyles.button, commonStyles.cancelButton]} 
-                      onPress={() => isAddModalVisible ? setIsAddModalVisible(false) : setIsEditModalVisible(false)}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={commonStyles.cancelButtonText}>Cancel</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity 
-                      style={[commonStyles.button, commonStyles.saveButton]} 
-                      onPress={isAddModalVisible ? handleSaveProduct : handleUpdateProduct}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={commonStyles.saveButtonText}>
-                        {isAddModalVisible ? 'Save Product' : 'Update Product'}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
+                      <View style={commonStyles.formGroup}>
+                        <Text style={commonStyles.label}>Category (Optional)</Text>
+                        <View style={commonStyles.pickerContainer}>
+                          <RNPickerSelect
+                            onValueChange={(value) => 
+                              isAddModalVisible 
+                                ? setNewProduct({ ...newProduct, category: value })
+                                : setEditProduct({ ...editProduct!, category: value })
+                            }
+                            value={isAddModalVisible ? newProduct.category : editProduct?.category || ''}
+                            items={categories.map((category) => ({
+                              label: category.name,
+                              value: category.name,
+                            }))}
+                            placeholder={{
+                              label: categories.length > 0 ? 'Select a category' : 'No categories available',
+                              value: null,
+                            }}
+                            style={{
+                              inputIOS: commonStyles.pickerInput,
+                              inputAndroid: commonStyles.pickerInput,
+                            }}
+                          />
+                        </View>
+                      </View>
+
+                      <View style={commonStyles.formRow}>
+                        <View style={[commonStyles.formGroup, { flex: 1, marginRight: 8 }]}>
+                          <Text style={commonStyles.label}>Quantity</Text>
+                          <TextInput
+                            style={commonStyles.input}
+                            placeholder="0"
+                            keyboardType="numeric"
+                            value={isAddModalVisible 
+                              ? newProduct.quantity.toString() 
+                              : editProduct?.quantity.toString() || '0'
+                            }
+                            onChangeText={(text) => 
+                              isAddModalVisible 
+                                ? setNewProduct({ ...newProduct, quantity: parseInt(text) || 0 })
+                                : setEditProduct({ ...editProduct!, quantity: parseInt(text) || 0 })
+                            }
+                            placeholderTextColor="#9E9E9E"
+                          />
+                        </View>
+                        <View style={[commonStyles.formGroup, { flex: 1, marginLeft: 8 }]}>
+                          <Text style={commonStyles.label}>Low Stock Alert</Text>
+                          <TextInput
+                            style={commonStyles.input}
+                            placeholder="10"
+                            keyboardType="numeric"
+                            value={isAddModalVisible 
+                              ? newProduct.lowStockThreshold?.toString() || '' 
+                              : editProduct?.lowStockThreshold?.toString() || ''
+                            }
+                            onChangeText={(text) =>
+                              isAddModalVisible
+                                ? setNewProduct({ ...newProduct, lowStockThreshold: parseInt(text) || 10 })
+                                : setEditProduct({ ...editProduct!, lowStockThreshold: parseInt(text) || 10 })
+                            }
+                            placeholderTextColor="#9E9E9E"
+                          />
+                        </View>
+                      </View>
+
+                      <View style={commonStyles.formGroup}>
+                        <Text style={commonStyles.label}>Product Image</Text>
+                        <TouchableOpacity 
+                          onPress={() => handlePickImage(!isAddModalVisible)} 
+                          style={commonStyles.imagePicker}
+                          activeOpacity={0.8}
+                        >
+                          {(isAddModalVisible ? newProduct.image : editProduct?.image) ? (
+                            <Image 
+                              source={{ uri: isAddModalVisible ? newProduct.image : editProduct?.image }} 
+                              style={commonStyles.previewImage} 
+                            />
+                          ) : (
+                            <View style={commonStyles.imagePickerPlaceholder}>
+                              <MaterialCommunityIcons name="camera-outline" size={32} color="#2f95dc" />
+                              <Text style={commonStyles.imagePickerText}>Select Image</Text>
+                            </View>
+                          )}
+                        </TouchableOpacity>
+                      </View>
+
+                      <View style={commonStyles.modalButtons}>
+                        <TouchableOpacity 
+                          style={[commonStyles.button, commonStyles.cancelButton]} 
+                          onPress={() => isAddModalVisible ? setIsAddModalVisible(false) : setIsEditModalVisible(false)}
+                          activeOpacity={0.7}
+                        >
+                          <Text style={commonStyles.cancelButtonText}>Cancel</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          style={[commonStyles.button, commonStyles.saveButton]} 
+                          onPress={isAddModalVisible ? handleSaveProduct : handleUpdateProduct}
+                          activeOpacity={0.7}
+                        >
+                          <Text style={commonStyles.saveButtonText}>
+                            {isAddModalVisible ? 'Save Product' : 'Update Product'}
+                          </Text>
+                        </TouchableOpacity>
+                      </View>
+                    </View>
+                  </ScrollView>
                 </View>
-              </View>
-            </Animated.View>
-          </View>
+              </Animated.View>
+            </View>
+          </KeyboardAvoidingView>
         </Modal>
       </SafeAreaView>
     </ImageBackground>
