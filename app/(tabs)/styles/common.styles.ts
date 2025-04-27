@@ -202,6 +202,7 @@ export const commonStyles = StyleSheet.create({
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     overflow: 'hidden',
+    height: '70%',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
