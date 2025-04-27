@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   FlatList,
   Image,
   SafeAreaView,
@@ -22,6 +21,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Product, Category } from '@/types/types';
 import { addProduct, getProducts, getCategories, updateProduct, deleteProduct } from '@/services/storage';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { commonStyles } from './styles/common.styles';
 
 const { width, height } = Dimensions.get('window');
 
@@ -216,33 +216,33 @@ export default function ProductsScreen() {
   };
 
   const renderProductItem = ({ item }: { item: Product }) => (
-    <Card style={styles.productCard}>
-      <View style={styles.productContainer}>
-        <View style={styles.imageContainer}>
+    <Card style={commonStyles.productCard}>
+      <View style={commonStyles.productContainer}>
+        <View style={commonStyles.imageContainer}>
           <Image 
             source={{ uri: item.image || 'https://via.placeholder.com/100' }} 
-            style={styles.productImage} 
+            style={commonStyles.productImage} 
             resizeMode="cover"
           />
           <View style={[
-            styles.stockIndicator, 
+            commonStyles.stockIndicator, 
             { backgroundColor: getStockStatusColor(item.quantity, item.lowStockThreshold) }
           ]} />
         </View>
-        <View style={styles.productInfo}>
-          <Text style={styles.productName}>{item.name}</Text>
-          <View style={styles.quantityContainer}>
-            <Text style={styles.quantityLabel}>Qty:</Text>
+        <View style={commonStyles.productInfo}>
+          <Text style={commonStyles.productName}>{item.name}</Text>
+          <View style={commonStyles.quantityContainer}>
+            <Text style={commonStyles.quantityLabel}>Qty:</Text>
             <Text style={[
-              styles.productQuantity, 
+              commonStyles.productQuantity, 
               { color: getStockStatusColor(item.quantity, item.lowStockThreshold) }
             ]}>
               {item.quantity}
             </Text>
           </View>
           {item.category && (
-            <View style={styles.categoryBadge}>
-              <Text style={styles.categoryText}>{item.category}</Text>
+            <View style={commonStyles.categoryBadge}>
+              <Text style={commonStyles.categoryText}>{item.category}</Text>
             </View>
           )}
         </View>
@@ -250,7 +250,7 @@ export default function ProductsScreen() {
           icon="dots-vertical"
           size={24}
           onPress={() => openOptionsModal(item)}
-          style={styles.menuButton}
+          style={commonStyles.menuButton}
         />
       </View>
     </Card>
@@ -284,23 +284,22 @@ export default function ProductsScreen() {
 
   return (
     <ImageBackground 
-      source={require('@/assets/images/background.jpg')} 
-      style={styles.backgroundImage}
+      style={commonStyles.backgroundImage}
       resizeMode="cover"
     >
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={commonStyles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
-        <View style={styles.contentContainer}>
-          <View style={styles.searchBarContainer}>
+        <View style={[commonStyles.contentContainer, { paddingTop: StatusBar.currentHeight || 0 }]}>
+          <View style={commonStyles.searchBarContainer}>
             <Searchbar
               placeholder="Search products or categories"
               onChangeText={handleSearch}
               onClearIconPress={clearSearch}
               value={searchQuery}
-              style={styles.searchBar}
+              style={commonStyles.searchBar}
               iconColor="#2f95dc"
               placeholderTextColor="#9E9E9E"
-              inputStyle={styles.searchInput}
+              inputStyle={commonStyles.searchInput}
             />
           </View>
 
@@ -308,18 +307,18 @@ export default function ProductsScreen() {
             data={filteredProducts}
             keyExtractor={(item) => item.id}
             renderItem={renderProductItem}
-            contentContainerStyle={styles.productList}
+            contentContainerStyle={commonStyles.productList}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
-              <View style={styles.emptyContainer}>
+              <View style={commonStyles.emptyContainer}>
                 <Image 
                   source={{ uri: 'https://via.placeholder.com/150?text=Empty' }} 
-                  style={styles.emptyImage} 
+                  style={commonStyles.emptyImage} 
                 />
-                <Text style={styles.emptyText}>
+                <Text style={commonStyles.emptyText}>
                   {searchQuery.trim() ? 'No matching products found' : 'No products found'}
                 </Text>
-                <Text style={styles.emptySubtext}>
+                <Text style={commonStyles.emptySubtext}>
                   {searchQuery.trim() 
                     ? 'Try a different search term' 
                     : 'Add a new product to get started'}
@@ -329,7 +328,7 @@ export default function ProductsScreen() {
           />
 
           <FAB
-            style={styles.fab}
+            style={commonStyles.fab}
             icon="plus"
             onPress={handleAddProduct}
             color="#fff"
@@ -340,49 +339,49 @@ export default function ProductsScreen() {
 
         {/* Options Modal */}
         <Modal visible={isOptionsModalVisible} animationType="none" transparent={true}>
-          <View style={styles.modalOverlay}>
+          <View style={commonStyles.modalOverlay}>
             <Animated.View 
               style={[
-                styles.optionsModalContainer,
+                commonStyles.optionsModalContainer,
                 {
                   opacity: optionsOpacity,
                   transform: [{ scale: optionsScale }]
                 }
               ]}
             >
-              <View style={styles.optionsModalContent}>
-                <View style={styles.optionsModalHeader}>
-                  <Text style={styles.optionsModalTitle}>Product Options</Text>
+              <View style={commonStyles.optionsModalContent}>
+                <View style={commonStyles.optionsModalHeader}>
+                  <Text style={commonStyles.optionsModalTitle}>Product Options</Text>
                 </View>
                 
                 <TouchableOpacity 
-                  style={styles.optionButton} 
+                  style={commonStyles.optionButton} 
                   onPress={handleEditOption}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.optionIconContainer, { backgroundColor: 'rgba(47, 149, 220, 0.1)' }]}>
+                  <View style={[commonStyles.optionIconContainer, { backgroundColor: 'rgba(47, 149, 220, 0.1)' }]}>
                     <MaterialCommunityIcons name="pencil-outline" size={22} color="#2f95dc" />
                   </View>
-                  <Text style={styles.optionText}>Edit Product</Text>
+                  <Text style={commonStyles.optionText}>Edit Product</Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
-                  style={styles.optionButton} 
+                  style={commonStyles.optionButton} 
                   onPress={handleDeleteOption}
                   activeOpacity={0.7}
                 >
-                  <View style={[styles.optionIconContainer, { backgroundColor: 'rgba(255, 82, 82, 0.1)' }]}>
+                  <View style={[commonStyles.optionIconContainer, { backgroundColor: 'rgba(255, 82, 82, 0.1)' }]}>
                     <MaterialCommunityIcons name="delete-outline" size={22} color="#FF5252" />
                   </View>
-                  <Text style={[styles.optionText, { color: '#FF5252' }]}>Delete Product</Text>
+                  <Text style={[commonStyles.optionText, { color: '#FF5252' }]}>Delete Product</Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
-                  style={styles.cancelOptionButton} 
+                  style={commonStyles.cancelOptionButton} 
                   onPress={() => setIsOptionsModalVisible(false)}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                  <Text style={commonStyles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
               </View>
             </Animated.View>
@@ -391,40 +390,40 @@ export default function ProductsScreen() {
 
         {/* Delete Confirmation Modal */}
         <Modal visible={isDeleteConfirmVisible} animationType="none" transparent={true}>
-          <View style={styles.modalOverlay}>
+          <View style={commonStyles.modalOverlay}>
             <Animated.View 
               style={[
-                styles.confirmModalContainer,
+                commonStyles.confirmModalContainer,
                 {
                   opacity: deleteOpacity,
                   transform: [{ scale: deleteScale }]
                 }
               ]}
             >
-              <View style={styles.confirmModalContent}>
-                <View style={styles.deleteIconContainer}>
+              <View style={commonStyles.confirmModalContent}>
+                <View style={commonStyles.deleteIconContainer}>
                   <MaterialCommunityIcons name="alert-circle-outline" size={40} color="#FF5252" />
                 </View>
                 
-                <Text style={styles.confirmModalTitle}>Delete Product</Text>
-                <Text style={styles.confirmModalText}>
+                <Text style={commonStyles.confirmModalTitle}>Delete Product</Text>
+                <Text style={commonStyles.confirmModalText}>
                   Are you sure you want to delete "{selectedProduct?.name}"? This action cannot be undone.
                 </Text>
                 
-                <View style={styles.confirmModalButtons}>
+                <View style={commonStyles.confirmModalButtons}>
                   <TouchableOpacity 
-                    style={[styles.button, styles.cancelButton]} 
+                    style={[commonStyles.button, commonStyles.cancelButton]} 
                     onPress={() => setIsDeleteConfirmVisible(false)}
                     activeOpacity={0.7}
                   >
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
+                    <Text style={commonStyles.cancelButtonText}>Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity 
-                    style={[styles.button, styles.deleteButton]} 
+                    style={[commonStyles.button, commonStyles.deleteButton]} 
                     onPress={handleDeleteProduct}
                     activeOpacity={0.7}
                   >
-                    <Text style={styles.deleteButtonText}>Delete</Text>
+                    <Text style={commonStyles.deleteButtonText}>Delete</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -438,34 +437,34 @@ export default function ProductsScreen() {
           animationType="none" 
           transparent={true}
         >
-          <View style={styles.modalOverlay}>
+          <View style={commonStyles.modalOverlay}>
             <Animated.View 
               style={[
-                styles.modalContainer,
+                commonStyles.modalContainer,
                 {
                   transform: [{ translateY: modalTranslateY }]
                 }
               ]}
             >
-              <View style={styles.modalContent}>
-                <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>
+              <View style={commonStyles.modalContent}>
+                <View style={commonStyles.modalHeader}>
+                  <Text style={commonStyles.modalTitle}>
                     {isAddModalVisible ? 'Add New Product' : 'Edit Product'}
                   </Text>
                   <IconButton
                     icon="close"
                     size={24}
                     onPress={() => isAddModalVisible ? setIsAddModalVisible(false) : setIsEditModalVisible(false)}
-                    style={styles.closeButton}
+                    style={commonStyles.closeButton}
                   />
                 </View>
 
                 {/* Form content for Add or Edit */}
-                <View style={styles.formContainer}>
-                  <View style={styles.formGroup}>
-                    <Text style={styles.label}>Product Name</Text>
+                <View style={commonStyles.formContainer}>
+                  <View style={commonStyles.formGroup}>
+                    <Text style={commonStyles.label}>Product Name</Text>
                     <TextInput
-                      style={styles.input}
+                      style={commonStyles.input}
                       placeholder="Enter product name"
                       value={isAddModalVisible ? newProduct.name : editProduct?.name || ''}
                       onChangeText={(text) => 
@@ -477,9 +476,9 @@ export default function ProductsScreen() {
                     />
                   </View>
 
-                  <View style={styles.formGroup}>
-                    <Text style={styles.label}>Category (Optional)</Text>
-                    <View style={styles.pickerContainer}>
+                  <View style={commonStyles.formGroup}>
+                    <Text style={commonStyles.label}>Category (Optional)</Text>
+                    <View style={commonStyles.pickerContainer}>
                       <RNPickerSelect
                         onValueChange={(value) => 
                           isAddModalVisible 
@@ -496,18 +495,18 @@ export default function ProductsScreen() {
                           value: null,
                         }}
                         style={{
-                          inputIOS: styles.pickerInput,
-                          inputAndroid: styles.pickerInput,
+                          inputIOS: commonStyles.pickerInput,
+                          inputAndroid: commonStyles.pickerInput,
                         }}
                       />
                     </View>
                   </View>
 
-                  <View style={styles.formRow}>
-                    <View style={[styles.formGroup, { flex: 1, marginRight: 8 }]}>
-                      <Text style={styles.label}>Quantity</Text>
+                  <View style={commonStyles.formRow}>
+                    <View style={[commonStyles.formGroup, { flex: 1, marginRight: 8 }]}>
+                      <Text style={commonStyles.label}>Quantity</Text>
                       <TextInput
-                        style={styles.input}
+                        style={commonStyles.input}
                         placeholder="0"
                         keyboardType="numeric"
                         value={isAddModalVisible 
@@ -522,10 +521,10 @@ export default function ProductsScreen() {
                         placeholderTextColor="#9E9E9E"
                       />
                     </View>
-                    <View style={[styles.formGroup, { flex: 1, marginLeft: 8 }]}>
-                      <Text style={styles.label}>Low Stock Alert</Text>
+                    <View style={[commonStyles.formGroup, { flex: 1, marginLeft: 8 }]}>
+                      <Text style={commonStyles.label}>Low Stock Alert</Text>
                       <TextInput
-                        style={styles.input}
+                        style={commonStyles.input}
                         placeholder="10"
                         keyboardType="numeric"
                         value={isAddModalVisible 
@@ -542,41 +541,41 @@ export default function ProductsScreen() {
                     </View>
                   </View>
 
-                  <View style={styles.formGroup}>
-                    <Text style={styles.label}>Product Image</Text>
+                  <View style={commonStyles.formGroup}>
+                    <Text style={commonStyles.label}>Product Image</Text>
                     <TouchableOpacity 
                       onPress={() => handlePickImage(!isAddModalVisible)} 
-                      style={styles.imagePicker}
+                      style={commonStyles.imagePicker}
                       activeOpacity={0.8}
                     >
                       {(isAddModalVisible ? newProduct.image : editProduct?.image) ? (
                         <Image 
                           source={{ uri: isAddModalVisible ? newProduct.image : editProduct?.image }} 
-                          style={styles.previewImage} 
+                          style={commonStyles.previewImage} 
                         />
                       ) : (
-                        <View style={styles.imagePickerPlaceholder}>
+                        <View style={commonStyles.imagePickerPlaceholder}>
                           <MaterialCommunityIcons name="camera-outline" size={32} color="#2f95dc" />
-                          <Text style={styles.imagePickerText}>Select Image</Text>
+                          <Text style={commonStyles.imagePickerText}>Select Image</Text>
                         </View>
                       )}
                     </TouchableOpacity>
                   </View>
 
-                  <View style={styles.modalButtons}>
+                  <View style={commonStyles.modalButtons}>
                     <TouchableOpacity 
-                      style={[styles.button, styles.cancelButton]} 
+                      style={[commonStyles.button, commonStyles.cancelButton]} 
                       onPress={() => isAddModalVisible ? setIsAddModalVisible(false) : setIsEditModalVisible(false)}
                       activeOpacity={0.7}
                     >
-                      <Text style={styles.cancelButtonText}>Cancel</Text>
+                      <Text style={commonStyles.cancelButtonText}>Cancel</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
-                      style={[styles.button, styles.saveButton]} 
+                      style={[commonStyles.button, commonStyles.saveButton]} 
                       onPress={isAddModalVisible ? handleSaveProduct : handleUpdateProduct}
                       activeOpacity={0.7}
                     >
-                      <Text style={styles.saveButtonText}>
+                      <Text style={commonStyles.saveButtonText}>
                         {isAddModalVisible ? 'Save Product' : 'Update Product'}
                       </Text>
                     </TouchableOpacity>
@@ -590,479 +589,3 @@ export default function ProductsScreen() {
     </ImageBackground>
   );
 }
-
-const styles = StyleSheet.create({
-  backgroundImage: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
-  container: { 
-    flex: 1,
-  },
-  contentContainer: {
-    flex: 1,
-    paddingTop: StatusBar.currentHeight || 0, // Add padding for status bar
-    backgroundColor: 'rgba(248, 249, 250, 0.85)', // Semi-transparent background
-  },
-  searchBarContainer: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  searchBar: { 
-    borderRadius: 12,
-    height: 50,
-    backgroundColor: '#fff',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.15,
-        shadowRadius: 10,
-      },
-      android: {
-        elevation: 6,
-      },
-    }),
-  },
-  searchInput: {
-    fontSize: 16,
-  },
-  productList: { 
-    padding: 16, 
-    paddingBottom: 100 
-  },
-  productCard: { 
-    marginBottom: 16, 
-    elevation: 3,
-    borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: 'rgba(255, 255, 255, 0.95)', // Slightly transparent cards
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-    }),
-  },
-  productContainer: { 
-    flexDirection: 'row', 
-    padding: 16, 
-    alignItems: 'center' 
-  },
-  imageContainer: {
-    position: 'relative',
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  productImage: { 
-    width: 80, 
-    height: 80, 
-    borderRadius: 12,
-  },
-  stockIndicator: {
-    position: 'absolute',
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    bottom: 4,
-    right: 4,
-    borderWidth: 2,
-    borderColor: '#fff',
-  },
-  productInfo: { 
-    flex: 1, 
-    marginLeft: 16 
-  },
-  productName: { 
-    fontSize: 18, 
-    fontWeight: 'bold', 
-    color: '#212121', 
-    marginBottom: 8 
-  },
-  quantityContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  quantityLabel: {
-    fontSize: 14,
-    color: '#757575',
-    marginRight: 4,
-  },
-  productQuantity: { 
-    fontSize: 16, 
-    fontWeight: '600',
-  },
-  categoryBadge: {
-    backgroundColor: '#E3F2FD',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 16,
-    alignSelf: 'flex-start',
-    marginBottom: 8,
-  },
-  categoryText: {
-    fontSize: 12,
-    color: '#1976D2',
-    fontWeight: '500',
-  },
-  lowStockThreshold: { 
-    fontSize: 12, 
-    color: '#9E9E9E',
-    fontStyle: 'italic',
-  },
-  menuButton: {
-    margin: 0,
-    backgroundColor: '#f5f5f5',
-  },
-  fab: { 
-    position: 'absolute', 
-    margin: 16, 
-    right: 0, 
-    bottom: 0, 
-    backgroundColor: '#2f95dc',
-    borderRadius: 28,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.2,
-        shadowRadius: 6,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
-  },
-  emptyContainer: { 
-    alignItems: 'center', 
-    justifyContent: 'center', 
-    padding: 40,
-    marginTop: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    borderRadius: 16,
-    marginHorizontal: 16,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
-  },
-  emptyImage: {
-    width: 120,
-    height: 120,
-    marginBottom: 16,
-    opacity: 0.6,
-  },
-  emptyText: { 
-    fontSize: 20, 
-    fontWeight: 'bold', 
-    color: '#424242', 
-    marginTop: 16 
-  },
-  emptySubtext: { 
-    fontSize: 14, 
-    color: '#757575', 
-    marginTop: 8,
-    textAlign: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContainer: { 
-    width: '100%',
-    justifyContent: 'flex-end', 
-    alignItems: 'center',
-    height: '100%',
-  },
-  modalContent: { 
-    width: '100%', 
-    backgroundColor: '#fff', 
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    overflow: 'hidden',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: -3 },
-        shadowOpacity: 0.1,
-        shadowRadius: 10,
-      },
-      android: {
-        elevation: 24,
-      },
-    }),
-  },
-  modalHeader: {
-    paddingHorizontal: 24,
-    paddingTop: 16,
-    paddingBottom: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  modalDragIndicator: {
-    width: 40,
-    height: 5,
-    backgroundColor: '#E0E0E0',
-    borderRadius: 2.5,
-    alignSelf: 'center',
-    marginBottom: 10,
-  },
-  modalTitle: { 
-    fontSize: 20, 
-    fontWeight: 'bold',
-    color: '#212121',
-    flex: 1,
-    textAlign: 'center',
-  },
-  closeButton: {
-    margin: 0,
-    backgroundColor: 'transparent',
-  },
-  formContainer: {
-    padding: 24,
-  },
-  formGroup: {
-    marginBottom: 20,
-  },
-  formRow: {
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  label: { 
-    fontSize: 14, 
-    fontWeight: '600', 
-    marginBottom: 8,
-    color: '#424242',
-  },
-  input: { 
-    borderWidth: 1, 
-    borderColor: '#E0E0E0', 
-    borderRadius: 12, 
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: '#FAFAFA',
-    height: 50,
-  },
-  pickerContainer: {
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    backgroundColor: '#FAFAFA',
-    height: 50,
-    justifyContent: 'center',
-  },
-  pickerInput: { 
-    fontSize: 16,
-    padding: 12,
-    color: '#212121',
-  },
-  imagePicker: { 
-    borderWidth: 1,
-    borderColor: '#E0E0E0',
-    borderRadius: 12,
-    overflow: 'hidden',
-    height: 150,
-    backgroundColor: '#FAFAFA',
-  },
-  imagePickerPlaceholder: {
-    height: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FAFAFA',
-  },
-  imagePickerText: { 
-    color: '#2f95dc', 
-    fontWeight: '500',
-    marginTop: 8,
-  },
-  previewImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  modalButtons: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between',
-    marginTop: 8,
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 2,
-      },
-    }),
-  },
-  cancelButton: {
-    marginRight: 8,
-    backgroundColor: '#F5F5F5',
-  },
-  saveButton: {
-    marginLeft: 8,
-    backgroundColor: '#2f95dc',
-  },
-  deleteButton: {
-    marginLeft: 8,
-    backgroundColor: '#FF5252',
-  },
-  cancelButtonText: {
-    color: '#616161',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  saveButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  deleteButtonText: {
-    color: '#FFFFFF',
-    fontWeight: '600',
-    fontSize: 16,
-  },
-  // Options Modal Styles
-  optionsModalContainer: {
-    width: width * 0.85,
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 10,
-      },
-      android: {
-        elevation: 24,
-      },
-    }),
-  },
-  optionsModalContent: {
-    width: '100%',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    overflow: 'hidden',
-  },
-  optionsModalHeader: {
-    padding: 16,
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  optionsModalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#212121',
-    marginBottom: 8,
-  },
-  optionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-  },
-  optionIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  optionIcon: {
-    margin: 0,
-    marginRight: 8,
-  },
-  optionText: {
-    fontSize: 16,
-    color: '#212121',
-    fontWeight: '500',
-  },
-  cancelOptionButton: {
-    padding: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-  },
-  // Confirm Delete Modal Styles
-  confirmModalContainer: {
-    width: width * 0.85,
-    justifyContent: 'center',
-    alignItems: 'center',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 10,
-      },
-      android: {
-        elevation: 24,
-      },
-    }),
-  },
-  confirmModalContent: {
-    width: '100%',
-    backgroundColor: '#fff',
-    padding: 24,
-    borderRadius: 16,
-    alignItems: 'center',
-  },
-  deleteIconContainer: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    backgroundColor: 'rgba(255, 82, 82, 0.1)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 16,
-  },
-  confirmModalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#FF5252',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  confirmModalText: {
-    fontSize: 16,
-    color: '#424242',
-    marginBottom: 24,
-    textAlign: 'center',
-    lineHeight: 24,
-  },
-  confirmModalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-});
