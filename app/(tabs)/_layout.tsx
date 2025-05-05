@@ -7,6 +7,7 @@ import { createCommonStyles } from '@/style/stylesheet';
 import Colors from '@/constants/Colors';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useClientOnlyValue } from '@/components/useClientOnlyValue';
+import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
 
 // You can explore the built-in icon families and icons on the web at https://icons.expo.fyi/
 function TabBarIcon(props: {
@@ -42,16 +43,14 @@ export default function TabLayout() {
   const isDarkMode = colorScheme === 'dark';
   const styles = useMemo(() => createCommonStyles(isDarkMode), [isDarkMode]);
 
+  const screenOptions: BottomTabNavigationOptions = {
+    ...styles.tabScreenOptions,
+    header: () => <CustomHeader />,
+    headerShown: useClientOnlyValue(false, true),
+  };
+
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: useClientOnlyValue(false, true),
-        header: () => <CustomHeader />,
-        headerStyle: {
-          backgroundColor: 'transparent',
-        },
-      }}>
+    <Tabs screenOptions={screenOptions}>
       <Tabs.Screen
         name="index"
         options={{
