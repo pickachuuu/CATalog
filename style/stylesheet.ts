@@ -141,12 +141,14 @@ export const createCommonStyles = (isDarkMode: boolean) => {
       },
       searchBarContainer: {
         paddingHorizontal: 16,
-        paddingVertical: 12,
+        paddingVertical: 8, 
       },
       searchBar: {
+        borderWidth: 1,
+        borderColor: theme.borderColor,
         borderRadius: 12,
         height: 50,
-        backgroundColor: theme.background,
+        backgroundColor: theme.secondaryBackground,
         ...Platform.select({
           ios: {
             shadowColor: '#000',
@@ -172,7 +174,7 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         elevation: 3,
         borderRadius: 12,
         overflow: 'hidden',
-        backgroundColor: theme.background,
+        backgroundColor: theme.secondaryBackground,
         ...Platform.select({
           ios: {
             shadowColor: '#000',
@@ -539,7 +541,29 @@ export const createCommonStyles = (isDarkMode: boolean) => {
       formGroupWithMarginLeft: {
         flex: 1,
         marginLeft: 8
-      }
+      },
+      // Header styles
+      safeArea: {
+        backgroundColor: '#FFFFFF',
+      },
+      headerContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        height: 64,
+        backgroundColor: theme.background,
+      },
+      logo: {
+        width: 40,
+        height: 40,
+        marginRight: 8,
+      },
+      headerTitle: {
+        fontSize: 30,
+        fontWeight: 'bold',
+        color: theme.text,
+      },
     }),
     // Theme colors for direct access
     colors: {
