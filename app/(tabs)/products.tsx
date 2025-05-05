@@ -272,29 +272,30 @@ export default function ProductsScreen() {
 
   // Modal transform animations
   const modalTranslateY = modalAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [height, 0],
+    inputRange: [0, 0.6, 1],
+    outputRange: [height, 30, 0], // smoother with slight easing into position
   });
-
+  
   const optionsScale = optionsModalAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.8, 1],
+    inputRange: [0, 0.6, 1],
+    outputRange: [0.8, 1.02, 1], // slight bounce in scale
   });
-
+  
   const optionsOpacity = optionsModalAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
+    inputRange: [0, 0.4, 1],
+    outputRange: [0, 0.7, 1], // opacity rises earlier
   });
-
+  
   const deleteScale = deleteModalAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0.8, 1],
+    inputRange: [0, 0.6, 1],
+    outputRange: [0.8, 1.03, 1], // smooth bounce
   });
-
+  
   const deleteOpacity = deleteModalAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
+    inputRange: [0, 0.4, 1],
+    outputRange: [0, 0.7, 1],
   });
+  
 
   return (
     <ImageBackground 
