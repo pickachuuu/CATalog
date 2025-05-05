@@ -59,7 +59,6 @@ export default function ProductsScreen() {
   const [modalAnimation] = useState(new Animated.Value(0));
   const [deleteModalAnimation] = useState(new Animated.Value(0));
   const [optionsModalAnimation] = useState(new Animated.Value(0));
-  const [overlayAnimation] = useState(new Animated.Value(0));
   
   useEffect(() => {
     // Load products and categories from local storage on component mount
@@ -113,15 +112,6 @@ export default function ProductsScreen() {
     }).start();
   };
 
-  const animateOverlay = (visible: boolean) => {
-    Animated.timing(overlayAnimation, {
-      toValue: visible ? 1 : 0,
-      duration: 200,
-      easing: Easing.ease,
-      useNativeDriver: true,
-    }).start();
-  };
-
   useEffect(() => {
     animateModal(isAddModalVisible || isEditModalVisible, modalAnimation);
   }, [isAddModalVisible, isEditModalVisible]);
@@ -133,11 +123,6 @@ export default function ProductsScreen() {
   useEffect(() => {
     animateModal(isOptionsModalVisible, optionsModalAnimation);
   }, [isOptionsModalVisible]);
-
-  useEffect(() => {
-    const isAnyModalVisible = isOptionsModalVisible || isEditModalVisible || isAddModalVisible || isDeleteConfirmVisible;
-    animateOverlay(isAnyModalVisible);
-  }, [isOptionsModalVisible, isEditModalVisible, isAddModalVisible, isDeleteConfirmVisible]);
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
@@ -228,14 +213,14 @@ export default function ProductsScreen() {
   const handleEditOption = () => {
     if (selectedProduct) {
       setEditProduct(selectedProduct);
+      setIsOptionsModalVisible(false);
       setIsEditModalVisible(true);
-      setTimeout(() => setIsOptionsModalVisible(false), 50);
     }
   };
 
   const handleDeleteOption = () => {
+    setIsOptionsModalVisible(false);
     setIsDeleteConfirmVisible(true);
-    setTimeout(() => setIsOptionsModalVisible(false), 50);
   };
 
   const getStockStatusColor = (quantity: number, threshold: number = 10) => {
@@ -309,21 +294,6 @@ export default function ProductsScreen() {
     >
       <SafeAreaView style={commonStyles.container}>
         <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor="transparent" translucent />
-        <Animated.View 
-          style={[
-            commonStyles.modalOverlay,
-            {
-              opacity: overlayAnimation,
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 1
-            }
-          ]}
-          pointerEvents={isOptionsModalVisible || isEditModalVisible || isAddModalVisible || isDeleteConfirmVisible ? 'auto' : 'none'}
-        />
         <View style={[commonStyles.contentContainer, { paddingTop: StatusBar.currentHeight || 0 }]}>
           <View style={commonStyles.searchBarContainer}>
             <Searchbar
@@ -380,8 +350,7 @@ export default function ProductsScreen() {
                 commonStyles.optionsModalContainer,
                 {
                   opacity: optionsOpacity,
-                  transform: [{ translateY: modalTranslateY }],
-                  zIndex: 2
+                  transform: [{ translateY: modalTranslateY }]
                 }
               ]}
             >
