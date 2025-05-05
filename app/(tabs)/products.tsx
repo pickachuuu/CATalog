@@ -12,7 +12,6 @@ import {
   Dimensions,
   Animated,
   Easing,
-  ImageBackground,
   useColorScheme,
   KeyboardAvoidingView,
   Platform,
@@ -288,12 +287,9 @@ export default function ProductsScreen() {
   
 
   return (
-    <ImageBackground 
-      style={commonStyles.backgroundImage}
-      resizeMode="cover"
-    >
-      <SafeAreaView style={commonStyles.container}>
-        <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor="transparent" translucent />
+    <View style={{ flex: 1, backgroundColor: styles.colors.background }}>
+      <SafeAreaView style={[commonStyles.container]}>
+        <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={styles.colors.background} translucent />
         <View style={[commonStyles.contentContainer, { paddingTop: StatusBar.currentHeight || 0 }]}>
           <View style={commonStyles.searchBarContainer}>
             <Searchbar
@@ -598,6 +594,6 @@ export default function ProductsScreen() {
           </KeyboardAvoidingView>
         </Modal>
       </SafeAreaView>
-    </ImageBackground>
+    </View>
   );
 }
