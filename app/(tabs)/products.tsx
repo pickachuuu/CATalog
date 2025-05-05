@@ -289,8 +289,7 @@ export default function ProductsScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: styles.colors.background }}>
       <SafeAreaView style={[commonStyles.container]}>
-        <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} backgroundColor={styles.colors.background} translucent />
-        <View style={[commonStyles.contentContainer, { paddingTop: StatusBar.currentHeight || 0 }]}>
+        <View style={[commonStyles.contentContainer,]}>
           <View style={commonStyles.searchBarContainer}>
             <Searchbar
               placeholder="Search products or categories"
@@ -303,7 +302,7 @@ export default function ProductsScreen() {
               inputStyle={commonStyles.searchInput}
             />
           </View>
-
+          <View style={styles.horizontalRule} />
           <FlatList
             data={filteredProducts}
             keyExtractor={(item) => item.id}
