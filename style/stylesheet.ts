@@ -1,5 +1,7 @@
 import { StyleSheet, Platform, Dimensions } from 'react-native';
 import Colors from '../constants/Colors';
+import { BottomTabNavigationOptions } from '@react-navigation/bottom-tabs';
+import { transparent } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 const { width } = Dimensions.get('window');
 
@@ -137,7 +139,7 @@ export const createCommonStyles = (isDarkMode: boolean) => {
       },
       contentContainer: {
         flex: 1,
-        paddingTop: Platform.OS === 'ios' ? 0 : 0,
+        
       },
       searchBarContainer: {
         paddingHorizontal: 16,
@@ -170,6 +172,7 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         paddingBottom: 100,
       },
       productCard: {
+        color: theme.text,
         marginBottom: 16,
         elevation: 3,
         borderRadius: 12,
@@ -544,7 +547,7 @@ export const createCommonStyles = (isDarkMode: boolean) => {
       },
       // Header styles
       safeArea: {
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'transparent',
       },
       headerContainer: {
         flexDirection: 'row',
@@ -564,14 +567,37 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         fontWeight: 'bold',
         color: theme.text,
       },
+
+      // Horizontal rule
+      horizontalRule: {
+        borderBottomColor: theme.borderColor, // Use theme border color
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        marginVertical: 0.5,
+      },
     }),
-    // Theme colors for direct access
+
     colors: {
       tint: theme.tint,
       error: theme.error,
       text: theme.text,
       background: theme.background,
       tabIconDefault: theme.tabIconDefault
-    }
+    },
+    tabScreenOptions: {
+      tabBarActiveTintColor: theme.tint,
+      headerShown: true as const,
+      headerStyle: {
+        backgroundColor: 'transparent',
+      },
+      tabBarStyle: {
+        backgroundColor: theme.tabColor,
+        borderTopColor: theme.borderColor,
+      },
+      tabBarLabelStyle: {
+        fontSize: 12,
+        fontWeight: '500',
+      },
+      tabBarInactiveTintColor: theme.tabIconDefault,
+    } satisfies Partial<BottomTabNavigationOptions>,
   };
 };
