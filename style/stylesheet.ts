@@ -15,35 +15,33 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         width: width * 0.85,
         justifyContent: 'center',
         alignItems: 'center',
-        ...Platform.select({
-          ios: {
-            shadowColor: theme.shadow,
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.25,
-            shadowRadius: 16,
-          },
-          android: {
-            elevation: 24,
-          },
-        }),
+        backgroundColor: 'transparent',
       },
       optionsModalContent: {
         width: '100%',
         backgroundColor: theme.background,  // Changed from '#fff'
-        borderRadius: 20,
+        borderRadius: 16,
         overflow: 'hidden',
-        paddingVertical: 8,
+        paddingVertical: 16,
+        ...Platform.select({
+          ios: {
+            shadowColor: theme.shadow,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.15,
+            shadowRadius: 16,
+          },
+          android: {
+            elevation: 8,
+          },
+        }),
       },
       optionsModalHeader: {
         padding: 16,
         alignItems: 'center',
-        marginBottom: 8,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.tabIconDefault,  // Changed from '#F0F0F0'
       },
       optionsModalTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
+        fontSize: 18,
+        fontWeight: '600',
         color: theme.text,  // Changed from '#212121'
         marginBottom: 8,
       },
@@ -54,33 +52,39 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         marginHorizontal: 8,
         marginVertical: 4,
         borderRadius: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.tabIconDefault,  // Changed from '#F0F0F0'
       },
-      optionIconContainer: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 16,
+      optionIconContainerInline: {
+        backgroundColor: `${theme.tint}10`,
+        padding: 8,
+        borderRadius: 10,
+        marginRight: 12,
       },
-      optionIcon: {
-        margin: 0,
-        marginRight: 8,
+      deleteIconContainerInline: {
+        backgroundColor: `${theme.error}10`,
+        padding: 8,
+        borderRadius: 10,
+        marginRight: 12,
       },
       optionText: {
         fontSize: 16,
         color: theme.text,  // Changed from '#212121'
         fontWeight: '500',
       },
+      deleteOptionText: {
+        fontSize: 16,
+        color: theme.error,
+        fontWeight: '500',
+      },
       cancelOptionButton: {
         padding: 16,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 8,
-        borderTopWidth: StyleSheet.hairlineWidth,
-        borderTopColor: theme.borderColor,
+        marginTop: 4,
+      },
+      cancelButtonText: {
+        color: theme.tabIconDefault,
+        fontWeight: '500',
+        fontSize: 16,
       },
       // Confirm Modal Styles
       confirmModalContainer: {
@@ -466,7 +470,7 @@ export const createCommonStyles = (isDarkMode: boolean) => {
       },
       cancelButton: {
         marginRight: 8,
-        backgroundColor: theme.tabIconDefault,
+        backgroundColor: theme.borderColor,
       },
       saveButton: {
         marginLeft: 8,
@@ -475,11 +479,6 @@ export const createCommonStyles = (isDarkMode: boolean) => {
       deleteButton: {
         marginLeft: 8,
         backgroundColor: theme.tabIconDefault,
-      },
-      cancelButtonText: {
-        color: theme.tabIconDefault,
-        fontWeight: '500',
-        fontSize: 16,
       },
       saveButtonText: {
         color: theme.background,
@@ -496,23 +495,6 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         padding: 16, 
         flexDirection: 'row', 
         alignItems: 'center'
-      },
-      optionIconContainerInline: {
-        backgroundColor: `${theme.tint}15`, // 10% opacity
-        padding: 10, 
-        borderRadius: 20, 
-        marginRight: 12
-      },
-      deleteIconContainerInline: {
-        backgroundColor: `${theme.error}15`, // 10% opacity
-        padding: 10, 
-        borderRadius: 20, 
-        marginRight: 12
-      },
-      deleteOptionText: {
-        fontSize: 16,
-        color: theme.error,
-        fontWeight: '500',
       },
       cancelOptionButtonInline: {
         padding: 16, 
