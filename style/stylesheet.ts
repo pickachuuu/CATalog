@@ -17,10 +17,10 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         alignItems: 'center',
         ...Platform.select({
           ios: {
-            shadowColor: '#000',
-            shadowOffset: { width: 0, height: 2 },
+            shadowColor: theme.shadow,
+            shadowOffset: { width: 0, height: 4 },
             shadowOpacity: 0.25,
-            shadowRadius: 10,
+            shadowRadius: 16,
           },
           android: {
             elevation: 24,
@@ -30,17 +30,19 @@ export const createCommonStyles = (isDarkMode: boolean) => {
       optionsModalContent: {
         width: '100%',
         backgroundColor: theme.background,  // Changed from '#fff'
-        borderRadius: 16,
+        borderRadius: 20,
         overflow: 'hidden',
+        paddingVertical: 8,
       },
       optionsModalHeader: {
         padding: 16,
         alignItems: 'center',
+        marginBottom: 8,
         borderBottomWidth: 1,
         borderBottomColor: theme.tabIconDefault,  // Changed from '#F0F0F0'
       },
       optionsModalTitle: {
-        fontSize: 18,
+        fontSize: 20,
         fontWeight: 'bold',
         color: theme.text,  // Changed from '#212121'
         marginBottom: 8,
@@ -49,6 +51,9 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         flexDirection: 'row',
         alignItems: 'center',
         padding: 16,
+        marginHorizontal: 8,
+        marginVertical: 4,
+        borderRadius: 12,
         borderBottomWidth: 1,
         borderBottomColor: theme.tabIconDefault,  // Changed from '#F0F0F0'
       },
@@ -73,8 +78,9 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         padding: 16,
         alignItems: 'center',
         justifyContent: 'center',
-        borderTopWidth: 1,
-        borderTopColor: theme.tabIconDefault,  // Changed from '#F0F0F0'
+        marginTop: 8,
+        borderTopWidth: StyleSheet.hairlineWidth,
+        borderTopColor: theme.borderColor,
       },
       // Confirm Modal Styles
       confirmModalContainer: {
@@ -471,8 +477,8 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         backgroundColor: theme.tabIconDefault,
       },
       cancelButtonText: {
-        color: theme.text,
-        fontWeight: '600',
+        color: theme.tabIconDefault,
+        fontWeight: '500',
         fontSize: 16,
       },
       saveButtonText: {
@@ -492,20 +498,21 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         alignItems: 'center'
       },
       optionIconContainerInline: {
-        backgroundColor: `${theme.tint}1A`, // 10% opacity
+        backgroundColor: `${theme.tint}15`, // 10% opacity
         padding: 10, 
         borderRadius: 20, 
         marginRight: 12
       },
       deleteIconContainerInline: {
-        backgroundColor: `${theme.error}1A`, // 10% opacity
+        backgroundColor: `${theme.error}15`, // 10% opacity
         padding: 10, 
         borderRadius: 20, 
         marginRight: 12
       },
       deleteOptionText: {
         fontSize: 16,
-        color: theme.error
+        color: theme.error,
+        fontWeight: '500',
       },
       cancelOptionButtonInline: {
         padding: 16, 
