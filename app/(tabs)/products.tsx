@@ -10,8 +10,6 @@ import {
   TouchableOpacity,
   StatusBar,
   Dimensions,
-  Animated,
-  Easing,
   useColorScheme,
   KeyboardAvoidingView,
   Platform,
@@ -54,11 +52,6 @@ export default function ProductsScreen() {
   });
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   
-  // Animation values
-  const [modalAnimation] = useState(new Animated.Value(0));
-  const [deleteModalAnimation] = useState(new Animated.Value(0));
-  const [optionsModalAnimation] = useState(new Animated.Value(0));
-  
   useEffect(() => {
     // Load products and categories from local storage on component mount
     const loadData = async () => {
@@ -69,9 +62,6 @@ export default function ProductsScreen() {
     };
     loadData();
   }, []);
-
-
-
 
   // Filter products based on search query
   const filteredProducts = useMemo(() => {
@@ -100,28 +90,6 @@ export default function ProductsScreen() {
       return false;
     });
   }, [products, searchQuery]);
-
-  // Animation functions
-  const animateModal = (visible: boolean, animationValue: Animated.Value) => {
-    Animated.timing(animationValue, {
-      toValue: visible ? 1 : 0,
-      duration: 200, // Faster animation
-      easing: Easing.ease, // Simpler easing
-      useNativeDriver: true,
-    }).start();
-  };
-
-  useEffect(() => {
-    animateModal(isAddModalVisible || isEditModalVisible, modalAnimation);
-  }, [isAddModalVisible, isEditModalVisible]);
-
-  useEffect(() => {
-    animateModal(isDeleteConfirmVisible, deleteModalAnimation);
-  }, [isDeleteConfirmVisible]);
-
-  useEffect(() => {
-    animateModal(isOptionsModalVisible, optionsModalAnimation);
-  }, [isOptionsModalVisible]);
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
@@ -269,23 +237,6 @@ export default function ProductsScreen() {
     </Card>
   );
 
-  // Modal transform animations
-  const modalTranslateY = modalAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [50, 0], // Slight shift up instead of full height
-  });
-  
-  const optionsOpacity = optionsModalAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
-  });
-  
-  const deleteOpacity = deleteModalAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
-  });
-  
-
   return (
     <View style={{ flex: 1, backgroundColor: styles.colors.background }}>
       <SafeAreaView style={[commonStyles.container]}>
@@ -337,69 +288,69 @@ export default function ProductsScreen() {
           />
         </View>
 
-        {/* Options Modal */}
-        <Modal visible={isOptionsModalVisible} animationType="none" transparent={true}>
+        {/* Options Modal - No animations */}
+        <Modal visible={isOptionsModalVisible} transparent={true}>
           <View style={commonStyles.modalOverlay}>
-            <Animated.View 
-              style={[
-                commonStyles.optionsModalContainer,
-                {
-                  opacity: optionsOpacity,
-                  transform: [{ translateY: modalTranslateY }]
-                }
-              ]}
-            >
-              <View style={commonStyles.optionsModalContent || commonStyles.modalContent}>
-                <View style={commonStyles.optionsModalHeader || commonStyles.modalHeader}>
-                  <Text style={commonStyles.optionsModalTitle || commonStyles.modalTitle}>Product Options</Text>
+            <View style={commonStyles.optionsModalContainer}>
+              <View style={commonStyles.optionsModalContent}>
+                <View style={commonStyles.optionsModalHeader}>
+                  <Text style={commonStyles.optionsModalTitle}>
+                    {selectedProduct?.name}
+                  </Text>
                 </View>
-                
+
                 <TouchableOpacity 
-                  style={commonStyles.optionButton} 
+                  style={[
+                    commonStyles.optionButton,
+                    { backgroundColor: `${styles.colors.tint}05` }
+                  ]} 
                   onPress={handleEditOption}
                   activeOpacity={0.7}
                 >
                   <View style={commonStyles.optionIconContainerInline}>
-                    <MaterialCommunityIcons name="pencil-outline" size={22} color={styles.colors.tint} />
+                    <MaterialCommunityIcons 
+                      name="pencil-outline" 
+                      size={20} 
+                      color={styles.colors.tint} 
+                    />
                   </View>
                   <Text style={commonStyles.optionText}>Edit Product</Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
-                  style={commonStyles.optionButton} 
+                  style={[
+                    commonStyles.optionButton,
+                    { backgroundColor: `${styles.colors.error}05` }
+                  ]} 
                   onPress={handleDeleteOption}
                   activeOpacity={0.7}
                 >
                   <View style={commonStyles.deleteIconContainerInline}>
-                    <MaterialCommunityIcons name="delete-outline" size={22} color={styles.colors.error} />
+                    <MaterialCommunityIcons 
+                      name="delete-outline" 
+                      size={20} 
+                      color={styles.colors.error} 
+                    />
                   </View>
-                  <Text style={commonStyles.deleteOptionText}>Delete Product</Text>
+                  <Text style={commonStyles.deleteOptionText}>Delete</Text>
                 </TouchableOpacity>
                 
                 <TouchableOpacity 
-                  style={commonStyles.cancelOptionButton || { padding: 16, alignItems: 'center', borderTopWidth: 1, borderTopColor: '#e0e0e0' }} 
+                  style={commonStyles.cancelOptionButton}
                   onPress={() => setIsOptionsModalVisible(false)}
                   activeOpacity={0.7}
                 >
                   <Text style={commonStyles.cancelButtonText}>Cancel</Text>
                 </TouchableOpacity>
               </View>
-            </Animated.View>
+            </View>
           </View>
         </Modal>
 
-        {/* Delete Confirmation Modal */}
-        <Modal visible={isDeleteConfirmVisible} animationType="none" transparent={true}>
+        {/* Delete Confirmation Modal - No animations */}
+        <Modal visible={isDeleteConfirmVisible} transparent={true}>
           <View style={commonStyles.modalOverlay}>
-            <Animated.View 
-              style={[
-                commonStyles.confirmModalContainer,
-                {
-                  opacity: deleteOpacity,
-                  transform: [{ translateY: modalTranslateY }]
-                }
-              ]}
-            >
+            <View style={commonStyles.confirmModalContainer || commonStyles.modalContainer}>
               <View style={commonStyles.confirmModalContent || commonStyles.modalContent}>
                 <View style={commonStyles.deleteIconContainer || { alignItems: 'center', marginVertical: 16 }}>
                   <MaterialCommunityIcons name="alert-circle-outline" size={40} color="#FF5252" />
@@ -427,14 +378,13 @@ export default function ProductsScreen() {
                   </TouchableOpacity>
                 </View>
               </View>
-            </Animated.View>
+            </View>
           </View>
         </Modal>
 
-        {/* Modal for Adding/Editing Product */}
+        {/* Modal for Adding/Editing Product - No animations */}
         <Modal 
           visible={isAddModalVisible || isEditModalVisible} 
-          animationType="none" 
           transparent={true}
         >
           <KeyboardAvoidingView 
@@ -442,15 +392,7 @@ export default function ProductsScreen() {
             style={{ flex: 1 }}
           >
             <View style={commonStyles.modalOverlay}>
-              <Animated.View 
-                style={[
-                  commonStyles.modalContainer,
-                  {
-                    opacity: modalAnimation, // Direct use of animation value for opacity
-                    transform: [{ translateY: modalTranslateY }]
-                  }
-                ]}
-              >
+              <View style={commonStyles.modalContainer}>
                 <View style={commonStyles.modalContent}>
                   <View style={commonStyles.modalHeader}>
                     <Text style={commonStyles.modalTitle}>
@@ -588,7 +530,7 @@ export default function ProductsScreen() {
                     </TouchableOpacity>
                   </View>
                 </View>
-              </Animated.View>
+              </View>
             </View>
           </KeyboardAvoidingView>
         </Modal>
