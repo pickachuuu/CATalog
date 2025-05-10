@@ -762,6 +762,93 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         color: theme.tabIconDefault,
         marginTop: 4,
       },
+      smallModalContainer: {
+        width: width * 0.8,
+        backgroundColor: theme.background,
+        borderRadius: 12,
+        padding: 16,
+        ...Platform.select({
+          ios: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 10,
+          },
+          android: {
+            elevation: 5,
+          },
+        }),
+      },
+      smallModalTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: theme.text,
+        marginBottom: 16,
+        textAlign: 'center',
+      },
+      smallModalInput: {
+        borderWidth: 1,
+        borderColor: theme.borderColor,
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 16,
+        color: theme.text,
+        backgroundColor: isDarkMode ? '#2C2C2C' : theme.background,
+        marginBottom: 16,
+      },
+      smallModalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 12,
+      },
+      smallModalCancelButton: {
+        flex: 1,
+        backgroundColor: theme.borderColor,
+        padding: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        ...Platform.select({
+          ios: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+          },
+          android: {
+            elevation: 2,
+          },
+        }),
+      },
+      smallModalSaveButton: {
+        flex: 1,
+        backgroundColor: theme.tint,
+        padding: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        ...Platform.select({
+          ios: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+          },
+          android: {
+            elevation: 2,
+          },
+        }),
+      },
+      smallModalCancelText: {
+        color: theme.text,
+        fontSize: 16,
+        fontWeight: '600',
+      },
+      smallModalSaveText: {
+        color: theme.background,
+        fontSize: 16,
+        fontWeight: '600',
+      },
     }),
 
     colors: {
