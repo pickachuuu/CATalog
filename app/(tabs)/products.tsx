@@ -22,10 +22,13 @@ import { Product, Category } from '@/types/types';
 import { addProduct, getProducts, getCategories, updateProduct, deleteProduct } from '@/services/storage';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { createCommonStyles } from '@/style/stylesheet';
+import { useData } from '../../context/DataContext';
 
 const { width, height } = Dimensions.get('window');
 
 export default function ProductsScreen() {
+  const { refreshTrigger, refreshData } = useData();
+  
   // Get the device color scheme
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
@@ -62,6 +65,16 @@ export default function ProductsScreen() {
     };
     loadData();
   }, []);
+
+  useEffect(() => {
+    const reloadData = async () => {
+      const loadedProducts = await getProducts();
+      const loadedCategories = await getCategories();
+      setProducts(loadedProducts);
+      setCategories(loadedCategories);
+    };
+    reloadData();
+  }, [refreshTrigger]);
 
   // Filter products based on search query
   const filteredProducts = useMemo(() => {
@@ -104,34 +117,22 @@ export default function ProductsScreen() {
   };
 
   const handleSaveProduct = async () => {
-    if (newProduct.name && newProduct.quantity > 0) {
-      try {
-        const savedProduct = await addProduct(newProduct);
-        setProducts((prev) => [...prev, savedProduct]);
-        setNewProduct({ name: '', quantity: 0, category: '', image: '', lowStockThreshold: 10 });
-        setIsAddModalVisible(false);
-      } catch (error) {
-        console.error('Error saving product:', error);
-      }
-    } else {
-      alert('Please fill out all required fields.');
+    try {
+      await addProduct(newProduct);
+      await refreshData(); // Trigger refresh
+      setIsAddModalVisible(false);
+    } catch (error) {
+      console.error('Error saving product:', error);
     }
   };
 
   const handleUpdateProduct = async () => {
-    if (editProduct && editProduct.name && editProduct.quantity > 0) {
-      try {
-        const updatedProduct = await updateProduct(editProduct);
-        setProducts((prev) => 
-          prev.map(p => p.id === updatedProduct.id ? updatedProduct : p)
-        );
-        setEditProduct(null);
-        setIsEditModalVisible(false);
-      } catch (error) {
-        console.error('Error updating product:', error);
-      }
-    } else {
-      alert('Please fill out all required fields.');
+    try {
+      await updateProduct(editProduct!);
+      await refreshData(); // Trigger refresh
+      setIsEditModalVisible(false);
+    } catch (error) {
+      console.error('Error updating product:', error);
     }
   };
 
