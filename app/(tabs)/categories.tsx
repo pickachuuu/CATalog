@@ -15,7 +15,7 @@ import { FAB, IconButton, Card } from 'react-native-paper';
 import { Category } from '@/types/types';
 import { createCommonStyles } from '@/style/stylesheet';
 import { useData } from '../../context/DataContext';
-import { CategoryDeleteModal } from '@/components/modals/CategoryModals';
+import { CategoryDeleteModal, CategoryAddEditModal } from '@/components/modals/CategoryModals';
 
 export default function CategoriesScreen() {
   const {
@@ -158,88 +158,30 @@ export default function CategoriesScreen() {
       />
 
       {/* Add Category Modal */}
-      <Modal
-        visible={isAddModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setIsAddModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <Animated.View
-            style={[
-              styles.modalContent,
-              { transform: [{ translateY: modalTranslateY }] },
-            ]}
-          >
-            <Text style={styles.modalTitle}>Add New Category</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Category Name"
-              value={newCategoryName}
-              onChangeText={setNewCategoryName}
-              autoFocus
-            />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
-                onPress={() => setIsAddModalVisible(false)}
-              >
-                <Text style={styles.buttonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.saveButton]}
-                onPress={handleSaveCategory}
-              >
-                <Text style={[styles.buttonText, styles.saveButtonText]}>
-                  Save Category
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        </View>
-      </Modal>
+      <CategoryAddEditModal
+        isVisible={isAddModalVisible}
+        title="Add New Category"
+        value={newCategoryName}
+        onChangeText={setNewCategoryName}
+        onSave={handleSaveCategory}
+        onClose={() => setIsAddModalVisible(false)}
+        styles={commonStyles}
+        modalAnimation={modalAnimation}
+        buttonText="Save Category"
+      />
 
       {/* Edit Category Modal */}
-      <Modal
-        visible={isEditModalVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setIsEditModalVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <Animated.View
-            style={[
-              styles.modalContent,
-              { transform: [{ translateY: modalTranslateY }] },
-            ]}
-          >
-            <Text style={styles.modalTitle}>Edit Category</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Category Name"
-              value={editCategoryName}
-              onChangeText={setEditCategoryName}
-              autoFocus
-            />
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
-                onPress={() => setIsEditModalVisible(false)}
-              >
-                <Text style={styles.buttonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.saveButton]}
-                onPress={handleUpdateCategory}
-              >
-                <Text style={[styles.buttonText, styles.saveButtonText]}>
-                  Update Category
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        </View>
-      </Modal>
+      <CategoryAddEditModal
+        isVisible={isEditModalVisible}
+        title="Edit Category"
+        value={editCategoryName}
+        onChangeText={setEditCategoryName}
+        onSave={handleUpdateCategory}
+        onClose={() => setIsEditModalVisible(false)}
+        styles={commonStyles}
+        modalAnimation={modalAnimation}
+        buttonText="Update"
+      />
 
       {/* Delete Confirmation Modal */}
       <CategoryDeleteModal
