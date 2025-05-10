@@ -99,19 +99,27 @@ export const deleteProduct = async (id: string): Promise<void> => {
 };
 
 // Category methods
+// Update addCategory to verify data persistence
 export const addCategory = async (category: Omit<Category, 'id'>): Promise<Category> => {
     try {
         const existingCategories = await getCategories();
+        console.log('Existing categories:', existingCategories);
         
         const newCategory: Category = {
             ...category,
             id: Date.now().toString(),
         };
         
+        const updatedCategories = [...existingCategories, newCategory];
+        
         await storage.save({
             key: CATEGORIES_KEY,
-            data: [...existingCategories, newCategory]
+            data: updatedCategories
         });
+        
+        // Verify save was successful
+        const savedCategories = await getCategories();
+        console.log('Updated categories:', savedCategories); // Debug log
         
         return newCategory;
     } catch (error) {
@@ -120,6 +128,7 @@ export const addCategory = async (category: Omit<Category, 'id'>): Promise<Categ
     }
 };
 
+// Update getCategories to add more error context
 export const getCategories = async (): Promise<Category[]> => {
     try {
         const categories = await storage.load({
@@ -128,6 +137,7 @@ export const getCategories = async (): Promise<Category[]> => {
         return categories || [];
     } catch (error) {
         if (error instanceof Error && error.name === 'NotFoundError') {
+            console.log('No categories found, returning empty array');
             return [];
         }
         console.error('Error getting categories:', error);
