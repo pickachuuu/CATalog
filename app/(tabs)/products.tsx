@@ -225,7 +225,7 @@ export default function ProductsScreen() {
             </View>
             {category && (
               <View style={commonStyles.categoryBadge}>
-                <Text style={commonStyles.categoryText}>{category.name}</Text>
+                <Text style={commonStyles.categoryBadgeText}>{category.name}</Text>
               </View>
             )}
           </View>
