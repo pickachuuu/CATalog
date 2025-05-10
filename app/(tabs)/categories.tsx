@@ -15,6 +15,7 @@ import { FAB, IconButton, Card } from 'react-native-paper';
 import { Category } from '@/types/types';
 import { addCategory, getCategories, updateCategory, deleteCategory } from '@/services/storage';
 import { createCommonStyles } from '@/style/stylesheet';
+import { useData } from '../../context/DataContext';
 
 export default function CategoriesScreen() {
   const colorScheme = useColorScheme();
@@ -28,18 +29,29 @@ export default function CategoriesScreen() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [editCategoryName, setEditCategoryName] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   // Animation values
   const [modalAnimation] = useState(new Animated.Value(0));
   const [deleteModalAnimation] = useState(new Animated.Value(0));
 
+  const { refreshTrigger, refreshData } = useData();
+
   useEffect(() => {
     loadCategories();
-  }, []);
+  }, [refreshTrigger]);
 
   const loadCategories = async () => {
-    const loadedCategories = await getCategories();
-    setCategories(loadedCategories);
+    try {
+      setIsLoading(true);
+      const loadedCategories = await getCategories();
+      console.log('Loaded categories:', loadedCategories); // Debug log
+      setCategories(loadedCategories);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Animation functions
@@ -68,15 +80,13 @@ export default function CategoriesScreen() {
   const handleSaveCategory = async () => {
     if (newCategoryName.trim()) {
       try {
-        const savedCategory = await addCategory({ name: newCategoryName.trim() });
-        setCategories(prev => [...prev, savedCategory]);
+        await addCategory({ name: newCategoryName.trim() });
+        await refreshData(); // Trigger refresh
         setNewCategoryName('');
         setIsAddModalVisible(false);
       } catch (error) {
         console.error('Error saving category:', error);
       }
-    } else {
-      alert('Please enter a category name.');
     }
   };
 
