@@ -15,6 +15,7 @@ import { FAB, IconButton, Card } from 'react-native-paper';
 import { Category } from '@/types/types';
 import { createCommonStyles } from '@/style/stylesheet';
 import { useData } from '../../context/DataContext';
+import { CategoryDeleteModal } from '@/components/modals/CategoryModals';
 
 export default function CategoriesScreen() {
   const {
@@ -241,42 +242,14 @@ export default function CategoriesScreen() {
       </Modal>
 
       {/* Delete Confirmation Modal */}
-      <Modal
-        visible={isDeleteConfirmVisible}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setIsDeleteConfirmVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <Animated.View
-            style={[
-              styles.modalContent,
-              { transform: [{ translateY: modalTranslateY }] },
-            ]}
-          >
-            <Text style={styles.modalTitle}>Delete Category</Text>
-            <Text style={styles.deleteMessage}>
-              Are you sure you want to delete this category? This action cannot be undone.
-            </Text>
-            <View style={styles.modalButtons}>
-              <TouchableOpacity
-                style={[styles.button, styles.cancelButton]}
-                onPress={() => setIsDeleteConfirmVisible(false)}
-              >
-                <Text style={styles.buttonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.button, styles.deleteButton]}
-                onPress={handleDeleteCategory}
-              >
-                <Text style={[styles.buttonText, styles.deleteButtonText]}>
-                  Delete
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        </View>
-      </Modal>
+      <CategoryDeleteModal
+        isDeleteConfirmVisible={isDeleteConfirmVisible}
+        selectedCategory={selectedCategory}
+        styles={commonStyles}
+        deleteModalAnimation={deleteModalAnimation}
+        onCloseDeleteModal={() => setIsDeleteConfirmVisible(false)}
+        onDeleteConfirm={handleDeleteCategory}
+      />
 
       <FAB
         icon="plus"
