@@ -5,17 +5,13 @@ import {
   FlatList,
   Image,
   SafeAreaView,
-  TouchableOpacity,
-  StatusBar,
   Dimensions,
   useColorScheme,
-  ScrollView,
 } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import { Card, IconButton, Searchbar, FAB } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
-import { Product, Category } from '@/types/types';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { Product } from '@/types/types';
 import { createCommonStyles } from '@/style/stylesheet';
 import { useData } from '../../context/DataContext';
 import { ProductModals } from '@/components/modals/ProductModals';
