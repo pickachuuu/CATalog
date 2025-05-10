@@ -196,46 +196,49 @@ export default function ProductsScreen() {
     return commonStyles.stockStatusIn.backgroundColor;
   };
 
-  const renderProductItem = ({ item }: { item: Product }) => (
-    <Card style={commonStyles.productCard}>
-      <View style={commonStyles.productContainer}>
-        <View style={commonStyles.imageContainer}>
-          <Image 
-            source={{ uri: item.image || 'https://via.placeholder.com/100' }} 
-            style={commonStyles.productImage} 
-            resizeMode="cover"
-          />
-          <View style={[
-            commonStyles.stockIndicator, 
-            { backgroundColor: getStockStatusColor(item.quantity, item.lowStockThreshold) }
-          ]} />
-        </View>
-        <View style={commonStyles.productInfo}>
-          <Text style={commonStyles.productName}>{item.name}</Text>
-          <View style={commonStyles.quantityContainer}>
-            <Text style={commonStyles.quantityLabel}>Qty:</Text>
-            <Text style={[
-              commonStyles.productQuantity, 
-              { color: getStockStatusColor(item.quantity, item.lowStockThreshold) }
-            ]}>
-              {item.quantity}
-            </Text>
+  const renderProductItem = ({ item }: { item: Product }) => {
+    const category = categories.find(cat => cat.id === item.category);
+    return (
+      <Card style={commonStyles.productCard}>
+        <View style={commonStyles.productContainer}>
+          <View style={commonStyles.imageContainer}>
+            <Image 
+              source={{ uri: item.image || 'https://via.placeholder.com/100' }} 
+              style={commonStyles.productImage} 
+              resizeMode="cover"
+            />
+            <View style={[
+              commonStyles.stockIndicator, 
+              { backgroundColor: getStockStatusColor(item.quantity, item.lowStockThreshold) }
+            ]} />
           </View>
-          {item.category && (
-            <View style={commonStyles.categoryBadge}>
-              <Text style={commonStyles.categoryText}>{item.category}</Text>
+          <View style={commonStyles.productInfo}>
+            <Text style={commonStyles.productName}>{item.name}</Text>
+            <View style={commonStyles.quantityContainer}>
+              <Text style={commonStyles.quantityLabel}>Qty:</Text>
+              <Text style={[
+                commonStyles.productQuantity, 
+                { color: getStockStatusColor(item.quantity, item.lowStockThreshold) }
+              ]}>
+                {item.quantity}
+              </Text>
             </View>
-          )}
+            {category && (
+              <View style={commonStyles.categoryBadge}>
+                <Text style={commonStyles.categoryText}>{category.name}</Text>
+              </View>
+            )}
+          </View>
+          <IconButton
+            icon="dots-vertical"
+            size={24}
+            onPress={() => openOptionsModal(item)}
+            style={commonStyles.menuButton}
+          />
         </View>
-        <IconButton
-          icon="dots-vertical"
-          size={24}
-          onPress={() => openOptionsModal(item)}
-          style={commonStyles.menuButton}
-        />
-      </View>
-    </Card>
-  );
+      </Card>
+    );
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: styles.colors.background }}>
@@ -435,7 +438,7 @@ export default function ProductsScreen() {
                           value={isAddModalVisible ? newProduct.category : editProduct?.category || ''}
                           items={categories.map((category) => ({
                             label: category.name,
-                            value: category.name,
+                            value: category.id,
                           }))}
                           placeholder={{
                             label: categories.length > 0 ? 'Select a category' : 'No categories available',
