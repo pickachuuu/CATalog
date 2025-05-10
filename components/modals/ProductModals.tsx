@@ -52,10 +52,12 @@ export function ProductModals({
   setNewProduct,
   setEditProduct,
 }: ProductModalsProps) {
-  // Add animation state
+  // Add animation states for each modal
   const [deleteModalAnimation] = useState(new Animated.Value(0));
+  const [optionsModalAnimation] = useState(new Animated.Value(0));
+  const [addEditModalAnimation] = useState(new Animated.Value(0));
 
-  // Add animation effect
+  // Add animation effects for each modal
   useEffect(() => {
     Animated.timing(deleteModalAnimation, {
       toValue: isDeleteConfirmVisible ? 1 : 0,
@@ -65,8 +67,36 @@ export function ProductModals({
     }).start();
   }, [isDeleteConfirmVisible]);
 
-  // Add transform interpolation
-  const modalTranslateY = deleteModalAnimation.interpolate({
+  useEffect(() => {
+    Animated.timing(optionsModalAnimation, {
+      toValue: isOptionsModalVisible ? 1 : 0,
+      duration: 200,
+      easing: Easing.ease,
+      useNativeDriver: true,
+    }).start();
+  }, [isOptionsModalVisible]);
+
+  useEffect(() => {
+    Animated.timing(addEditModalAnimation, {
+      toValue: isAddModalVisible || isEditModalVisible ? 1 : 0,
+      duration: 200,
+      easing: Easing.ease,
+      useNativeDriver: true,
+    }).start();
+  }, [isAddModalVisible, isEditModalVisible]);
+
+  // Add transform interpolations for each modal
+  const deleteModalTranslateY = deleteModalAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [50, 0],
+  });
+
+  const optionsModalTranslateY = optionsModalAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [50, 0],
+  });
+
+  const addEditModalTranslateY = addEditModalAnimation.interpolate({
     inputRange: [0, 1],
     outputRange: [50, 0],
   });
@@ -74,9 +104,14 @@ export function ProductModals({
   return (
     <>
       {/* Options Modal */}
-      <Modal visible={isOptionsModalVisible} transparent={true}>
+      <Modal visible={isOptionsModalVisible} transparent={true} animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={styles.optionsModalContainer}>
+          <Animated.View 
+            style={[
+              styles.optionsModalContainer,
+              { transform: [{ translateY: optionsModalTranslateY }] }
+            ]}
+          >
             <View style={styles.optionsModalContent}>
               <View style={styles.optionsModalHeader}>
                 <Text style={styles.optionsModalTitle}>
@@ -128,7 +163,7 @@ export function ProductModals({
                 <Text style={styles.cancelButtonText}>Cancel</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </Animated.View>
         </View>
       </Modal>
 
@@ -138,7 +173,7 @@ export function ProductModals({
           <Animated.View 
             style={[
               styles.confirmModalContainer || styles.modalContainer,
-              { transform: [{ translateY: modalTranslateY }] }
+              { transform: [{ translateY: deleteModalTranslateY }] }
             ]}
           >
             <View style={styles.confirmModalContent || styles.modalContent}>
@@ -180,13 +215,19 @@ export function ProductModals({
       <Modal 
         visible={isAddModalVisible || isEditModalVisible} 
         transparent={true}
+        animationType="fade"
       >
         <KeyboardAvoidingView 
           behavior={Platform.OS === "ios" ? "padding" : "height"}
           style={{ flex: 1 }}
         >
           <View style={styles.modalOverlay}>
-            <View style={styles.modalContainer}>
+            <Animated.View 
+              style={[
+                styles.modalContainer,
+                { transform: [{ translateY: addEditModalTranslateY }] }
+              ]}
+            >
               <View style={styles.modalContent}>
                 <View style={styles.modalHeader}>
                   <Text style={styles.modalTitle}>
@@ -322,7 +363,7 @@ export function ProductModals({
                   </TouchableOpacity>
                 </View>
               </View>
-            </View>
+            </Animated.View>
           </View>
         </KeyboardAvoidingView>
       </Modal>
