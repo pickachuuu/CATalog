@@ -1,12 +1,14 @@
-import { ScrollView, Dimensions, RefreshControl } from 'react-native';
-import { Text, View } from '@/components/Themed';
+import { ScrollView, Dimensions, RefreshControl, View } from 'react-native';
+import { Text } from '@/components/Themed';
 import { PieChart, BarChart } from 'react-native-chart-kit';
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { getProducts, getLowStockProducts, getCategories } from '@/services/storage';
-import { Product, Category } from '@/types/types';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { getLowStockProducts } from '@/services/storage';
+import { Product } from '@/types/types';
 import { createCommonStyles } from '@/style/stylesheet';
 import { useColorScheme } from '@/components/useColorScheme';
 import { useData } from '@/context/DataContext';
+import { Surface } from 'react-native-paper';
 
 // Helper function to generate random colors for categories
 const getRandomColor = () => {
@@ -14,20 +16,23 @@ const getRandomColor = () => {
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
-export default function DashboardScreen() {111
-  const {
-    products,
-    categories,
-    refreshData,
-    refreshTrigger
-  } = useData();
-  
+export default function DashboardScreen() {
+  const { products, categories, refreshData, refreshTrigger } = useData();
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
   const styles = useMemo(() => createCommonStyles(isDarkMode), [isDarkMode]);
-
+  
   const [lowStockItems, setLowStockItems] = useState<Product[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Calculate dashboard metrics
+  const metrics = useMemo(() => ({
+    totalProducts: products.length,
+    totalStock: products.reduce((sum, p) => sum + p.quantity, 0),
+    lowStock: products.filter(p => p.quantity <= (p.lowStockThreshold || 10)).length,
+    outOfStock: products.filter(p => p.quantity === 0).length,
+    categories: categories.length
+  }), [products, categories]);
 
   const loadLowStockItems = useCallback(async () => {
     try {
@@ -95,34 +100,56 @@ export default function DashboardScreen() {111
   }), [categoryData]);
 
   return (
-    <ScrollView 
+    <ScrollView
       style={styles.dashboardContainer}
       refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          colors={[styles.colors.tint]} 
-          tintColor={styles.colors.tint}
-          title="Refreshing..."
-          titleColor={styles.colors.tabIconDefault}
-        />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       }
     >
-      <Text style={styles.dashboardTitle}>Dashboard</Text>
-      
-      {/* Category Distribution Pie Chart */}
-      <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Category Distribution</Text>
+      {/* Stats Overview */}
+      <View style={styles.dashboardStats}>
+        <Surface style={styles.statCard}>
+          <View style={[styles.statIcon, { backgroundColor: `${styles.colors.tint}15` }]}>
+            <MaterialCommunityIcons name="package-variant" size={24} color={styles.colors.tint} />
+          </View>
+          <Text style={styles.statValue}>{metrics.totalProducts}</Text>
+          <Text style={styles.statLabel}>Total Products</Text>
+        </Surface>
+
+        <Surface style={styles.statCard}>
+          <View style={[styles.statIcon, { backgroundColor: '#4CAF5015' }]}>
+            <MaterialCommunityIcons name="package-variant-closed" size={24} color="#4CAF50" />
+          </View>
+          <Text style={styles.statValue}>{metrics.totalStock}</Text>
+          <Text style={styles.statLabel}>Total Stock</Text>
+        </Surface>
+
+        <Surface style={styles.statCard}>
+          <View style={[styles.statIcon, { backgroundColor: `${styles.colors.error}15` }]}>
+            <MaterialCommunityIcons name="alert-circle" size={24} color={styles.colors.error} />
+          </View>
+          <Text style={[styles.statValue, { color: styles.colors.error }]}>{metrics.lowStock}</Text>
+          <Text style={styles.statLabel}>Low Stock</Text>
+        </Surface>
+      </View>
+
+      {/* Category Distribution */}
+      <Surface style={styles.chartSection}>
+        <View style={styles.lowStockHeader}>
+          <MaterialCommunityIcons name="chart-pie" size={24} color={styles.colors.tint} />
+          <Text style={[styles.lowStockTitle, { marginLeft: 12 }]}>Category Distribution</Text>
+        </View>
         {categoryData.length > 0 ? (
           <PieChart
             data={categoryData}
-            width={Dimensions.get('window').width - 40}
+            width={Dimensions.get('window').width - 48}
             height={220}
             chartConfig={{
-              backgroundColor: '#ffffff',
-              backgroundGradientFrom: '#ffffff',
-              backgroundGradientTo: '#ffffff',
+              backgroundColor: 'transparent',
+              backgroundGradientFrom: 'white',
+              backgroundGradientTo: 'white',
               color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+              labelColor: (opacity = 1) => styles.colors.text,
             }}
             accessor="population"
             backgroundColor="transparent"
@@ -132,60 +159,52 @@ export default function DashboardScreen() {111
         ) : (
           <Text style={styles.noDataText}>No category data available</Text>
         )}
-      </View>
+      </Surface>
 
-      {/* Stock Level Bar Chart */}
-      <View style={styles.chartContainer}>
-        <Text style={styles.chartTitle}>Stock Levels</Text>
-        {stockData.labels.length > 0 ? (
-          <BarChart
-            data={stockData}
-            width={Dimensions.get('window').width - 40}
-            height={220}
-            yAxisLabel=""
-            yAxisSuffix=""
-            chartConfig={{
-              backgroundColor: '#ffffff',
-              backgroundGradientFrom: '#ffffff',
-              backgroundGradientTo: '#ffffff',
-              decimalPlaces: 0,
-              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-              style: {
-                borderRadius: 16,
-              },
-            }}
-            style={{
-              marginVertical: 8,
-              borderRadius: 16,
-            }}
-          />
-        ) : (
-          <Text style={styles.noDataText}>No stock data available</Text>
-        )}
-      </View>
-
-      {/* Low Stock Items List */}
-      <View style={styles.listContainer}>
-        <Text style={styles.chartTitle}>Low Stock Items</Text>
+      {/* Low Stock Alerts */}
+      <Surface style={styles.lowStockSection}>
+        <View style={styles.lowStockHeader}>
+          <MaterialCommunityIcons name="alert-circle-outline" size={24} color={styles.colors.error} />
+          <Text style={[styles.lowStockTitle, { marginLeft: 12 }]}>Low Stock Alerts</Text>
+          {lowStockItems.length > 0 && (
+            <View style={{
+              backgroundColor: styles.colors.error,
+              borderRadius: 12,
+              paddingHorizontal: 8,
+              paddingVertical: 4,
+              marginLeft: 8,
+            }}>
+              <Text style={{ color: 'white', fontWeight: '600' }}>{lowStockItems.length}</Text>
+            </View>
+          )}
+        </View>
+        
         {lowStockItems.length > 0 ? (
           lowStockItems.map((item, index) => {
             const category = categories.find(cat => cat.id === item.category);
             return (
-              <View key={index} style={styles.listItem}>
-                <Text style={styles.itemName}>{item.name}</Text>
-                <Text style={styles.stockWarning}>
-                  Stock: {item.quantity} (Min: {item.lowStockThreshold || 10})
-                </Text>
-                {category && (
-                  <Text style={styles.categoryText}>Category: {category.name}</Text>
-                )}
+              <View key={index} style={styles.lowStockItem}>
+                <View style={styles.lowStockInfo}>
+                  <Text style={styles.lowStockName}>{item.name}</Text>
+                  {category && (
+                    <Text style={styles.lowStockCategory}>{category.name}</Text>
+                  )}
+                </View>
+                <View>
+                  <Text style={styles.stockCount}>{item.quantity}</Text>
+                  <Text style={styles.stockThreshold}>
+                    Min: {item.lowStockThreshold || 10}
+                  </Text>
+                </View>
               </View>
             );
           })
         ) : (
-          <Text style={styles.noDataText}>No low stock items</Text>
+          <View style={{ padding: 16 }}>
+            <Text style={styles.noDataText}>All stock levels are healthy</Text>
+          </View>
         )}
-      </View>
+      </Surface>
     </ScrollView>
   );
 }
