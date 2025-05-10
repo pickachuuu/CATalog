@@ -1,42 +1,68 @@
-import { StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Switch, TouchableOpacity, Alert } from 'react-native';
 import { Text, View } from '@/components/Themed';
+import { useState } from 'react';
 
-interface UserProfile {
-  name: string;
-  email: string;
-  avatarUrl: string;
-}
+export default function SettingsScreen() {
+  const [darkMode, setDarkMode] = useState(false);
 
-const user: UserProfile = {
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-  avatarUrl: 'https://i.pravatar.cc/150?img=12',
-};
-
-export default function ProfileScreen() {
-  const handleEditProfile = () => {
-    Alert.alert('Edit Profile', 'Navigating to edit profile screen...');
-    // Add navigation logic here
+  const toggleDarkMode = () => {
+    setDarkMode(prev => !prev);
+    // Implement actual theme logic if needed
   };
 
-  const handleLogout = () => {
-    Alert.alert('Log Out', 'You have been logged out.');
-    // Add logout logic here
+  const handleExportData = () => {
+    Alert.alert('Export', 'Data export feature not implemented yet.');
+    // Implement export logic here
+  };
+
+  const handleImportData = () => {
+    Alert.alert('Import', 'Data import feature not implemented yet.');
+    // Implement import logic here
+  };
+
+  const handleResetApp = () => {
+    Alert.alert(
+      'Reset App',
+      'Are you sure you want to reset all app data?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Reset',
+          style: 'destructive',
+          onPress: () => {
+            // Clear local storage or data
+            Alert.alert('Data Reset', 'All data has been cleared.');
+          },
+        },
+      ]
+    );
   };
 
   return (
     <View style={styles.container}>
-      <Image source={{ uri: user.avatarUrl }} style={styles.avatar} />
-      <Text style={styles.name}>{user.name}</Text>
-      <Text style={styles.email}>{user.email}</Text>
+      <Text style={styles.title}>Settings</Text>
 
-      <TouchableOpacity style={styles.button} onPress={handleEditProfile}>
-        <Text style={styles.buttonText}>Edit Profile</Text>
+      <View style={styles.settingItem}>
+        <Text style={styles.settingText}>Dark Mode</Text>
+        <Switch value={darkMode} onValueChange={toggleDarkMode} />
+      </View>
+
+      <TouchableOpacity style={styles.settingButton} onPress={handleExportData}>
+        <Text style={styles.settingText}>Export Data</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={handleLogout}>
-        <Text style={styles.buttonText}>Log Out</Text>
+      <TouchableOpacity style={styles.settingButton} onPress={handleImportData}>
+        <Text style={styles.settingText}>Import Data</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.settingButton} onPress={handleResetApp}>
+        <Text style={[styles.settingText, { color: '#DC2626' }]}>Reset App Data</Text>
+      </TouchableOpacity>
+
+      <View style={styles.separator} />
+
+      <Text style={styles.aboutText}>CATalog v1.0.0</Text>
+      <Text style={styles.aboutText}>© 2025 MobDev</Text>
     </View>
   );
 }
@@ -44,42 +70,35 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    padding: 24,
+    justifyContent: 'flex-start',
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    marginBottom: 24,
+    alignSelf: 'center',
+  },
+  settingItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-  },
-  avatar: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
     marginBottom: 20,
-    borderWidth: 2,
-    borderColor: '#ccc',
   },
-  name: {
-    fontSize: 24,
-    fontWeight: '600',
-    marginBottom: 6,
+  settingText: {
+    fontSize: 18,
   },
-  email: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 30,
-  },
-  button: {
-    backgroundColor: '#4F46E5',
+  settingButton: {
     paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 8,
-    marginTop: 12,
-    width: '80%',
   },
-  logoutButton: {
-    backgroundColor: '#DC2626',
+  separator: {
+    marginVertical: 30,
+    height: 1,
+    backgroundColor: '#ccc',
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
+  aboutText: {
     textAlign: 'center',
+    fontSize: 14,
+    color: '#888',
   },
 });
