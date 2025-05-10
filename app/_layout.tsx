@@ -9,6 +9,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/components/useColorScheme';
+import { DataProvider } from '../context/DataContext';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -42,7 +43,11 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <DataProvider>
+      <RootLayoutNav />
+    </DataProvider>
+  );
 }
 
 function RootLayoutNav() {
