@@ -254,7 +254,7 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         alignSelf: 'flex-start',
         marginBottom: 8,
       },
-      categoryText: {
+      categoryBadgeText: {
         fontSize: 12,
         color: theme.text,
         fontWeight: '500',
@@ -562,6 +562,82 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         borderBottomColor: theme.borderColor, // Use theme border color
         borderBottomWidth: StyleSheet.hairlineWidth,
         marginVertical: 0.5,
+      },
+      // Add these styles to createCommonStyles
+      dashboardContainer: {
+        flex: 1,
+        padding: 20,
+      },
+      dashboardTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        color: theme.text,
+      },
+      chartContainer: {
+        marginBottom: 20,
+        padding: 10,
+        borderRadius: 16,
+        backgroundColor: theme.secondaryBackground,
+        ...Platform.select({
+          ios: {
+            shadowColor: theme.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 10,
+          },
+          android: {
+            elevation: 5,
+          },
+        }),
+      },
+      chartTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: theme.text,
+      },
+      listContainer: {
+        marginBottom: 20,
+        padding: 10,
+        borderRadius: 16,
+        backgroundColor: theme.secondaryBackground,
+        ...Platform.select({
+          ios: {
+            shadowColor: theme.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 10,
+          },
+          android: {
+            elevation: 5,
+          },
+        }),
+      },
+      listItem: {
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.borderColor,
+      },
+      itemName: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: theme.text,
+      },
+      stockWarning: {
+        color: theme.error,
+        marginTop: 5,
+      },
+      categoryText: {
+        color: theme.tabIconDefault,
+        marginTop: 5,
+        fontSize: 14,
+      },
+      noDataText: {
+        textAlign: 'center',
+        color: theme.tabIconDefault,
+        fontStyle: 'italic',
+        padding: 20,
       },
     }),
 
