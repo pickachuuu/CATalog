@@ -14,49 +14,40 @@ const getRandomColor = () => {
   return colors[Math.floor(Math.random() * colors.length)];
 };
 
-export default function DashboardScreen() {
-  const { refreshTrigger, refreshData } = useData();
+export default function DashboardScreen() {111
+  const {
+    products,
+    categories,
+    refreshData,
+    refreshTrigger
+  } = useData();
+  
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
   const styles = useMemo(() => createCommonStyles(isDarkMode), [isDarkMode]);
 
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [lowStockItems, setLowStockItems] = useState<Product[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
-  const loadData = useCallback(async () => {
+  const loadLowStockItems = useCallback(async () => {
     try {
-      const allProducts = await getProducts();
-      const allCategories = await getCategories();
       const lowStock = await getLowStockProducts();
-      setProducts(allProducts);
-      setCategories(allCategories);
       setLowStockItems(lowStock);
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      console.error('Error loading low stock items:', error);
     }
   }, []);
 
   // Initial load and refresh when refreshTrigger changes
   useEffect(() => {
-    loadData();
-  }, [loadData, refreshTrigger]);
-
-  // Set up auto-refresh interval
-  useEffect(() => {
-    const refreshInterval = setInterval(() => {
-      loadData();
-    }, 30000); // Refresh every 30 seconds
-
-    return () => clearInterval(refreshInterval);
-  }, [loadData]);
+    loadLowStockItems();
+  }, [loadLowStockItems, refreshTrigger]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await Promise.all([loadData(), refreshData()]);
+    await Promise.all([loadLowStockItems(), refreshData()]);
     setRefreshing(false);
-  }, [loadData, refreshData]);
+  }, [loadLowStockItems, refreshData]);
 
   // Calculate category distribution using useMemo to prevent unnecessary recalculations
   const categoryData = useMemo(() => {
