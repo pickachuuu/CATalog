@@ -1,5 +1,5 @@
-import React from 'react';
-import { Modal, View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, TextInput, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Modal, View, Text, TouchableOpacity, KeyboardAvoidingView, Platform, ScrollView, TextInput, Image, Animated, Easing } from 'react-native';
 import { IconButton } from 'react-native-paper';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import RNPickerSelect from 'react-native-picker-select';
@@ -52,6 +52,25 @@ export function ProductModals({
   setNewProduct,
   setEditProduct,
 }: ProductModalsProps) {
+  // Add animation state
+  const [deleteModalAnimation] = useState(new Animated.Value(0));
+
+  // Add animation effect
+  useEffect(() => {
+    Animated.timing(deleteModalAnimation, {
+      toValue: isDeleteConfirmVisible ? 1 : 0,
+      duration: 200,
+      easing: Easing.ease,
+      useNativeDriver: true,
+    }).start();
+  }, [isDeleteConfirmVisible]);
+
+  // Add transform interpolation
+  const modalTranslateY = deleteModalAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [50, 0],
+  });
+
   return (
     <>
       {/* Options Modal */}
@@ -113,13 +132,22 @@ export function ProductModals({
         </View>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
-      <Modal visible={isDeleteConfirmVisible} transparent={true}>
+      {/* Update Delete Confirmation Modal */}
+      <Modal visible={isDeleteConfirmVisible} transparent={true} animationType="fade">
         <View style={styles.modalOverlay}>
-          <View style={styles.confirmModalContainer || styles.modalContainer}>
+          <Animated.View 
+            style={[
+              styles.confirmModalContainer || styles.modalContainer,
+              { transform: [{ translateY: modalTranslateY }] }
+            ]}
+          >
             <View style={styles.confirmModalContent || styles.modalContent}>
               <View style={styles.deleteIconContainer}>
-                <MaterialCommunityIcons name="alert-circle-outline" size={40} color="#FF5252" />
+                <MaterialCommunityIcons 
+                  name="alert-circle-outline" 
+                  size={40} 
+                  color={styles.colors.error} 
+                />
               </View>
               
               <Text style={styles.confirmModalTitle}>Delete Product</Text>
@@ -144,7 +172,7 @@ export function ProductModals({
                 </TouchableOpacity>
               </View>
             </View>
-          </View>
+          </Animated.View>
         </View>
       </Modal>
 
