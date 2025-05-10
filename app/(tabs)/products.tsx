@@ -23,6 +23,7 @@ import { addProduct, getProducts, getCategories, updateProduct, deleteProduct } 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { createCommonStyles } from '@/style/stylesheet';
 import { useData } from '../../context/DataContext';
+import { ProductModals } from '@/components/modals/ProductModals';
 
 const { width, height } = Dimensions.get('window');
 
@@ -244,7 +245,7 @@ export default function ProductsScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: styles.colors.background }}>
       <SafeAreaView style={[commonStyles.container]}>
-        <View style={[commonStyles.contentContainer,]}>
+        <View style={[commonStyles.contentContainer]}>
           <View style={commonStyles.searchBarContainer}>
             <Searchbar
               placeholder="Search products or categories"
@@ -290,254 +291,33 @@ export default function ProductsScreen() {
             label="Add Product"
             uppercase={false}
           />
+
+          <ProductModals
+            isOptionsModalVisible={isOptionsModalVisible}
+            isDeleteConfirmVisible={isDeleteConfirmVisible}
+            isAddModalVisible={isAddModalVisible}
+            isEditModalVisible={isEditModalVisible}
+            selectedProduct={selectedProduct}
+            editProduct={editProduct}
+            newProduct={newProduct}
+            categories={categories}
+            styles={styles}
+            onCloseOptionsModal={() => setIsOptionsModalVisible(false)}
+            onCloseDeleteModal={() => setIsDeleteConfirmVisible(false)}
+            onCloseAddEditModal={() => {
+              setIsAddModalVisible(false);
+              setIsEditModalVisible(false);
+            }}
+            onEdit={handleEditOption}
+            onDelete={handleDeleteOption}
+            onDeleteConfirm={handleDeleteProduct}
+            onSave={handleSaveProduct}
+            onUpdate={handleUpdateProduct}
+            onPickImage={handlePickImage}
+            setNewProduct={setNewProduct}
+            setEditProduct={setEditProduct}
+          />
         </View>
-
-        {/* Options Modal - No animations */}
-        <Modal visible={isOptionsModalVisible} transparent={true}>
-          <View style={commonStyles.modalOverlay}>
-            <View style={commonStyles.optionsModalContainer}>
-              <View style={commonStyles.optionsModalContent}>
-                <View style={commonStyles.optionsModalHeader}>
-                  <Text style={commonStyles.optionsModalTitle}>
-                    {selectedProduct?.name}
-                  </Text>
-                </View>
-
-                <TouchableOpacity 
-                  style={[
-                    commonStyles.optionButton,
-                    { backgroundColor: `${styles.colors.tint}05` }
-                  ]} 
-                  onPress={handleEditOption}
-                  activeOpacity={0.7}
-                >
-                  <View style={commonStyles.optionIconContainerInline}>
-                    <MaterialCommunityIcons 
-                      name="pencil-outline" 
-                      size={20} 
-                      color={styles.colors.tint} 
-                    />
-                  </View>
-                  <Text style={commonStyles.optionText}>Edit Product</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  style={[
-                    commonStyles.optionButton,
-                    { backgroundColor: `${styles.colors.error}05` }
-                  ]} 
-                  onPress={handleDeleteOption}
-                  activeOpacity={0.7}
-                >
-                  <View style={commonStyles.deleteIconContainerInline}>
-                    <MaterialCommunityIcons 
-                      name="delete-outline" 
-                      size={20} 
-                      color={styles.colors.error} 
-                    />
-                  </View>
-                  <Text style={commonStyles.deleteOptionText}>Delete</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                  style={commonStyles.cancelOptionButton}
-                  onPress={() => setIsOptionsModalVisible(false)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={commonStyles.cancelButtonText}>Cancel</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </Modal>
-
-        {/* Delete Confirmation Modal - No animations */}
-        <Modal visible={isDeleteConfirmVisible} transparent={true}>
-          <View style={commonStyles.modalOverlay}>
-            <View style={commonStyles.confirmModalContainer || commonStyles.modalContainer}>
-              <View style={commonStyles.confirmModalContent || commonStyles.modalContent}>
-                <View style={commonStyles.deleteIconContainer || { alignItems: 'center', marginVertical: 16 }}>
-                  <MaterialCommunityIcons name="alert-circle-outline" size={40} color="#FF5252" />
-                </View>
-                
-                <Text style={commonStyles.confirmModalTitle || { fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginBottom: 8 }}>Delete Product</Text>
-                <Text style={commonStyles.confirmModalText || { textAlign: 'center', marginBottom: 24, paddingHorizontal: 16 }}>
-                  Are you sure you want to delete "{selectedProduct?.name}"? This action cannot be undone.
-                </Text>
-                
-                <View style={commonStyles.confirmModalButtons || commonStyles.modalButtons}>
-                  <TouchableOpacity 
-                    style={[commonStyles.button, commonStyles.cancelButton]} 
-                    onPress={() => setIsDeleteConfirmVisible(false)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={commonStyles.cancelButtonText}>Cancel</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[commonStyles.button, commonStyles.deleteButton]} 
-                    onPress={handleDeleteProduct}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={commonStyles.deleteButtonText}>Delete</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </View>
-          </View>
-        </Modal>
-
-        {/* Modal for Adding/Editing Product - No animations */}
-        <Modal 
-          visible={isAddModalVisible || isEditModalVisible} 
-          transparent={true}
-        >
-          <KeyboardAvoidingView 
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ flex: 1 }}
-          >
-            <View style={commonStyles.modalOverlay}>
-              <View style={commonStyles.modalContainer}>
-                <View style={commonStyles.modalContent}>
-                  <View style={commonStyles.modalHeader}>
-                    <Text style={commonStyles.modalTitle}>
-                      {isAddModalVisible ? 'Add New Product' : 'Edit Product'}
-                    </Text>
-                    <IconButton
-                      icon="close"
-                      size={24}
-                      onPress={() => isAddModalVisible ? setIsAddModalVisible(false) : setIsEditModalVisible(false)}
-                      style={commonStyles.closeButton}
-                    />
-                  </View>
-
-                  {/* Wrap form content in ScrollView */}
-                  <ScrollView style={commonStyles.formContainer}>
-                    <View style={commonStyles.formGroup}>
-                      <Text style={commonStyles.label}>Product Name</Text>
-                      <TextInput
-                        style={commonStyles.input}
-                        placeholder="Enter product name"
-                        value={isAddModalVisible ? newProduct.name : editProduct?.name || ''}
-                        onChangeText={(text) => 
-                          isAddModalVisible 
-                            ? setNewProduct({ ...newProduct, name: text })
-                            : setEditProduct({ ...editProduct!, name: text })
-                        }
-                        placeholderTextColor={styles.colors.tabIconDefault}
-                      />
-                    </View>
-
-                    <View style={commonStyles.formGroup}>
-                      <Text style={commonStyles.label}>Category (Optional)</Text>
-                      <View style={commonStyles.pickerContainer}>
-                        <RNPickerSelect
-                          onValueChange={(value) => 
-                            isAddModalVisible 
-                              ? setNewProduct({ ...newProduct, category: value })
-                              : setEditProduct({ ...editProduct!, category: value })
-                          }
-                          value={isAddModalVisible ? newProduct.category : editProduct?.category || ''}
-                          items={categories.map((category) => ({
-                            label: category.name,
-                            value: category.id,
-                          }))}
-                          placeholder={{
-                            label: categories.length > 0 ? 'Select a category' : 'No categories available',
-                            value: null,
-                          }}
-                          style={{
-                            inputIOS: commonStyles.pickerInput,
-                            inputAndroid: commonStyles.pickerInput,
-                          }}
-                        />
-                      </View>
-                    </View>
-
-                    <View style={commonStyles.formRow}>
-                      <View style={[commonStyles.formGroup, commonStyles.formGroupWithMargin]}>
-                        <Text style={commonStyles.label}>Quantity</Text>
-                        <TextInput
-                          style={commonStyles.input}
-                          placeholder="0"
-                          keyboardType="numeric"
-                          value={isAddModalVisible 
-                            ? newProduct.quantity.toString() 
-                            : editProduct?.quantity.toString() || '0'
-                          }
-                          onChangeText={(text) => 
-                            isAddModalVisible 
-                              ? setNewProduct({ ...newProduct, quantity: parseInt(text) || 0 })
-                              : setEditProduct({ ...editProduct!, quantity: parseInt(text) || 0 })
-                          }
-                          placeholderTextColor={styles.colors.tabIconDefault}
-                        />
-                      </View>
-                      <View style={[commonStyles.formGroup, commonStyles.formGroupWithMarginLeft]}>
-                        <Text style={commonStyles.label}>Low Stock Alert</Text>
-                        <TextInput
-                          style={commonStyles.input}
-                          placeholder="10"
-                          keyboardType="numeric"
-                          value={isAddModalVisible 
-                            ? newProduct.lowStockThreshold?.toString() || '' 
-                            : editProduct?.lowStockThreshold?.toString() || ''
-                          }
-                          onChangeText={(text) =>
-                            isAddModalVisible
-                              ? setNewProduct({ ...newProduct, lowStockThreshold: parseInt(text) || 10 })
-                              : setEditProduct({ ...editProduct!, lowStockThreshold: parseInt(text) || 10 })
-                          }
-                          placeholderTextColor={styles.colors.tabIconDefault}
-                        />
-                      </View>
-                    </View>
-
-                    <View style={commonStyles.formGroup}>
-                      <Text style={commonStyles.label}>Product Image</Text>
-                      <TouchableOpacity 
-                        onPress={() => handlePickImage(!isAddModalVisible)} 
-                        style={commonStyles.imagePicker}
-                        activeOpacity={0.8}
-                      >
-                        {(isAddModalVisible ? newProduct.image : editProduct?.image) ? (
-                          <Image 
-                            source={{ uri: isAddModalVisible ? newProduct.image : editProduct?.image }} 
-                            style={commonStyles.previewImage} 
-                          />
-                        ) : (
-                          <View style={commonStyles.imagePickerPlaceholder}>
-                            <MaterialCommunityIcons name="camera-outline" size={32} color={styles.colors.tint} />
-                            <Text style={commonStyles.imagePickerText}>Select Image</Text>
-                          </View>
-                        )}
-                      </TouchableOpacity>
-                    </View>
-                  </ScrollView>
-
-                  {/* Keep buttons outside ScrollView */}
-                  <View style={[commonStyles.modalButtons, { padding: 16 }]}>
-                    <TouchableOpacity 
-                      style={[commonStyles.button, commonStyles.cancelButton]} 
-                      onPress={() => isAddModalVisible ? setIsAddModalVisible(false) : setIsEditModalVisible(false)}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={commonStyles.cancelButtonText}>Cancel</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity 
-                      style={[commonStyles.button, commonStyles.saveButton]} 
-                      onPress={isAddModalVisible ? handleSaveProduct : handleUpdateProduct}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={commonStyles.saveButtonText}>
-                        {isAddModalVisible ? 'Save Product' : 'Update Product'}
-                      </Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              </View>
-            </View>
-          </KeyboardAvoidingView>
-        </Modal>
       </SafeAreaView>
     </View>
   );
