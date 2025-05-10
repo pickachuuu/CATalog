@@ -13,46 +13,32 @@ import {
 } from 'react-native';
 import { FAB, IconButton, Card } from 'react-native-paper';
 import { Category } from '@/types/types';
-import { addCategory, getCategories, updateCategory, deleteCategory } from '@/services/storage';
 import { createCommonStyles } from '@/style/stylesheet';
 import { useData } from '../../context/DataContext';
 
 export default function CategoriesScreen() {
+  const {
+    categories,
+    addCategory,
+    updateCategory,
+    deleteCategory,
+    refreshData
+  } = useData();
+  
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
   const commonStyles = useMemo(() => createCommonStyles(isDarkMode), [isDarkMode]);
 
-  const [categories, setCategories] = useState<Category[]>([]);
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isDeleteConfirmVisible, setIsDeleteConfirmVisible] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [newCategoryName, setNewCategoryName] = useState('');
   const [editCategoryName, setEditCategoryName] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
 
   // Animation values
   const [modalAnimation] = useState(new Animated.Value(0));
   const [deleteModalAnimation] = useState(new Animated.Value(0));
-
-  const { refreshTrigger, refreshData } = useData();
-
-  useEffect(() => {
-    loadCategories();
-  }, [refreshTrigger]);
-
-  const loadCategories = async () => {
-    try {
-      setIsLoading(true);
-      const loadedCategories = await getCategories();
-      console.log('Loaded categories:', loadedCategories); // Debug log
-      setCategories(loadedCategories);
-    } catch (error) {
-      console.error('Error loading categories:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // Animation functions
   const animateModal = (visible: boolean, animationValue: Animated.Value) => {
@@ -81,7 +67,6 @@ export default function CategoriesScreen() {
     if (newCategoryName.trim()) {
       try {
         await addCategory({ name: newCategoryName.trim() });
-        await refreshData(); // Trigger refresh
         setNewCategoryName('');
         setIsAddModalVisible(false);
       } catch (error) {
@@ -99,21 +84,16 @@ export default function CategoriesScreen() {
   const handleUpdateCategory = async () => {
     if (selectedCategory && editCategoryName.trim()) {
       try {
-        const updatedCategory = await updateCategory({
+        await updateCategory({
           ...selectedCategory,
           name: editCategoryName.trim(),
         });
-        setCategories(prev =>
-          prev.map(cat => (cat.id === updatedCategory.id ? updatedCategory : cat))
-        );
         setSelectedCategory(null);
         setEditCategoryName('');
         setIsEditModalVisible(false);
       } catch (error) {
         console.error('Error updating category:', error);
       }
-    } else {
-      alert('Please enter a category name.');
     }
   };
 
@@ -121,7 +101,6 @@ export default function CategoriesScreen() {
     if (selectedCategory) {
       try {
         await deleteCategory(selectedCategory.id);
-        setCategories(prev => prev.filter(cat => cat.id !== selectedCategory.id));
         setSelectedCategory(null);
         setIsDeleteConfirmVisible(false);
       } catch (error) {
