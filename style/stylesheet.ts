@@ -565,6 +565,7 @@ export const createCommonStyles = (isDarkMode: boolean) => {
       },
       // Add these styles to createCommonStyles
       dashboardContainer: {
+        backgroundColor: theme.background,
         flex: 1,
         padding: 20,
       },
@@ -638,6 +639,128 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         color: theme.tabIconDefault,
         fontStyle: 'italic',
         padding: 20,
+      },
+      // Dashboard specific styles
+      dashboardStats: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        marginBottom: 24,
+      },
+      statCard: {
+        width: '31%',
+        backgroundColor: theme.secondaryBackground,
+        borderRadius: 12,
+        padding: 16,
+        ...Platform.select({
+          ios: {
+            shadowColor: theme.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 8,
+          },
+          android: {
+            elevation: 4,
+          },
+        }),
+      },
+      statIcon: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: `${theme.tint}15`,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 8,
+        alignSelf: 'center',
+      },
+      statValue: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: theme.text,
+        textAlign: 'center',
+        marginBottom: 4,
+      },
+      statLabel: {
+        fontSize: 12,
+        color: theme.tabIconDefault,
+        textAlign: 'center',
+      },
+      chartSection: {
+        marginBottom: 24,
+        padding: 16,
+        borderRadius: 16,
+        backgroundColor: theme.secondaryBackground,
+        ...Platform.select({
+          ios: {
+            shadowColor: theme.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 8,
+          },
+          android: {
+            elevation: 4,
+          },
+        }),
+      },
+      lowStockSection: {
+        marginBottom: 24,
+        borderRadius: 16,
+        backgroundColor: theme.secondaryBackground,
+        overflow: 'hidden',
+        ...Platform.select({
+          ios: {
+            shadowColor: theme.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 8,
+          },
+          android: {
+            elevation: 4,
+          },
+        }),
+      },
+      lowStockHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.borderColor,
+      },
+      lowStockTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: theme.text,
+        flex: 1,
+      },
+      lowStockItem: {
+        flexDirection: 'row',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.borderColor,
+      },
+      lowStockInfo: {
+        flex: 1,
+      },
+      lowStockName: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: theme.text,
+        marginBottom: 4,
+      },
+      lowStockCategory: {
+        fontSize: 14,
+        color: theme.tabIconDefault,
+      },
+      stockCount: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: theme.error,
+      },
+      stockThreshold: {
+        fontSize: 12,
+        color: theme.tabIconDefault,
+        marginTop: 4,
       },
     }),
 
