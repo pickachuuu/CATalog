@@ -1,25 +1,20 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
   FlatList,
   Image,
   SafeAreaView,
-  Modal,
-  TextInput,
   TouchableOpacity,
   StatusBar,
   Dimensions,
   useColorScheme,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
 } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import { Card, IconButton, Searchbar, FAB } from 'react-native-paper';
 import * as ImagePicker from 'expo-image-picker';
 import { Product, Category } from '@/types/types';
-import { addProduct, getProducts, getCategories, updateProduct, deleteProduct } from '@/services/storage';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { createCommonStyles } from '@/style/stylesheet';
 import { useData } from '../../context/DataContext';
@@ -28,20 +23,22 @@ import { ProductModals } from '@/components/modals/ProductModals';
 const { width, height } = Dimensions.get('window');
 
 export default function ProductsScreen() {
-  const { refreshTrigger, refreshData } = useData();
+  const {
+    products,
+    categories,
+    addProduct,
+    updateProduct,
+    deleteProduct,
+    refreshData
+  } = useData();
   
-  // Get the device color scheme
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
-  
-  // Create styles based on the current theme
   const commonStyles = useMemo(() => createCommonStyles(isDarkMode), [isDarkMode]);
   const styles = useMemo(() => createCommonStyles(isDarkMode), [isDarkMode]);
   
   const [visibleMenu, setVisibleMenu] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [products, setProducts] = useState<Product[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
   const [isAddModalVisible, setIsAddModalVisible] = useState<boolean>(false);
   const [isOptionsModalVisible, setIsOptionsModalVisible] = useState<boolean>(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState<boolean>(false);
@@ -55,27 +52,6 @@ export default function ProductsScreen() {
     lowStockThreshold: 10,
   });
   const [editProduct, setEditProduct] = useState<Product | null>(null);
-  
-  useEffect(() => {
-    // Load products and categories from local storage on component mount
-    const loadData = async () => {
-      const loadedProducts = await getProducts();
-      const loadedCategories = await getCategories();
-      setProducts(loadedProducts);
-      setCategories(loadedCategories);
-    };
-    loadData();
-  }, []);
-
-  useEffect(() => {
-    const reloadData = async () => {
-      const loadedProducts = await getProducts();
-      const loadedCategories = await getCategories();
-      setProducts(loadedProducts);
-      setCategories(loadedCategories);
-    };
-    reloadData();
-  }, [refreshTrigger]);
 
   // Filter products based on search query
   const filteredProducts = useMemo(() => {
@@ -86,21 +62,15 @@ export default function ProductsScreen() {
     const normalizedQuery = searchQuery.toLowerCase().trim();
     
     return products.filter(product => {
-      // Search in product name
       if (product.name.toLowerCase().includes(normalizedQuery)) {
         return true;
       }
-      
-      // Search in category
       if (product.category && product.category.toLowerCase().includes(normalizedQuery)) {
         return true;
       }
-      
-      // Search in quantity (as string)
       if (product.quantity.toString().includes(normalizedQuery)) {
         return true;
       }
-      
       return false;
     });
   }, [products, searchQuery]);
@@ -120,7 +90,6 @@ export default function ProductsScreen() {
   const handleSaveProduct = async () => {
     try {
       await addProduct(newProduct);
-      await refreshData(); // Trigger refresh
       setIsAddModalVisible(false);
     } catch (error) {
       console.error('Error saving product:', error);
@@ -130,7 +99,6 @@ export default function ProductsScreen() {
   const handleUpdateProduct = async () => {
     try {
       await updateProduct(editProduct!);
-      await refreshData(); // Trigger refresh
       setIsEditModalVisible(false);
     } catch (error) {
       console.error('Error updating product:', error);
@@ -141,7 +109,6 @@ export default function ProductsScreen() {
     if (selectedProduct) {
       try {
         await deleteProduct(selectedProduct.id);
-        setProducts((prev) => prev.filter(p => p.id !== selectedProduct.id));
         setSelectedProduct(null);
         setIsDeleteConfirmVisible(false);
         setIsOptionsModalVisible(false);
