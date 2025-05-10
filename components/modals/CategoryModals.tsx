@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, View, Text, TouchableOpacity, Animated } from 'react-native';
+import { Modal, View, Text, TouchableOpacity, Animated, TextInput } from 'react-native';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { Category } from '@/types/types';
 import { createCommonStyles } from '@/style/stylesheet';
@@ -65,6 +65,77 @@ export function CategoryDeleteModal({
                 <Text style={styles.deleteButtonText}>Delete</Text>
               </TouchableOpacity>
             </View>
+          </View>
+        </Animated.View>
+      </View>
+    </Modal>
+  );
+}
+
+interface CategoryAddEditModalProps {
+  isVisible: boolean;
+  title: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  onSave: () => void;
+  onClose: () => void;
+  styles: ReturnType<typeof createCommonStyles>;
+  modalAnimation: Animated.Value;
+  buttonText: string;
+}
+
+export function CategoryAddEditModal({
+  isVisible,
+  title,
+  value,
+  onChangeText,
+  onSave,
+  onClose,
+  styles,
+  modalAnimation,
+  buttonText
+}: CategoryAddEditModalProps) {
+  const modalTranslateY = modalAnimation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [50, 0],
+  });
+
+  return (
+    <Modal visible={isVisible} transparent={true} animationType="fade">
+      <View style={styles.modalOverlay}>
+        <Animated.View 
+          style={[
+            styles.smallModalContainer,
+            { transform: [{ translateY: modalTranslateY }] }
+          ]}
+        >
+          <Text style={styles.smallModalTitle}>{title}</Text>
+          
+          <TextInput
+            style={styles.smallModalInput}
+            placeholder="Category name"
+            placeholderTextColor={styles.colors.tabIconDefault}
+            value={value}
+            onChangeText={onChangeText}
+            autoCapitalize="words"
+            autoFocus
+          />
+          
+          <View style={styles.smallModalButtons}>
+            <TouchableOpacity 
+              style={styles.smallModalCancelButton} 
+              onPress={onClose}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.smallModalCancelText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.smallModalSaveButton} 
+              onPress={onSave}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.smallModalSaveText}>{buttonText}</Text>
+            </TouchableOpacity>
           </View>
         </Animated.View>
       </View>
