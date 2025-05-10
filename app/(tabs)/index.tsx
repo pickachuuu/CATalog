@@ -1,9 +1,11 @@
-import { StyleSheet, ScrollView, Dimensions, RefreshControl } from 'react-native';
+import { ScrollView, Dimensions, RefreshControl } from 'react-native';
 import { Text, View } from '@/components/Themed';
 import { PieChart, BarChart } from 'react-native-chart-kit';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 import { getProducts, getLowStockProducts, getCategories } from '@/services/storage';
 import { Product, Category } from '@/types/types';
+import { createCommonStyles } from '@/style/stylesheet';
+import { useColorScheme } from '@/components/useColorScheme';
 
 // Helper function to generate random colors for categories
 const getRandomColor = () => {
@@ -12,6 +14,10 @@ const getRandomColor = () => {
 };
 
 export default function DashboardScreen() {
+  const colorScheme = useColorScheme();
+  const isDarkMode = colorScheme === 'dark';
+  const styles = useMemo(() => createCommonStyles(isDarkMode), [isDarkMode]);
+
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [lowStockItems, setLowStockItems] = useState<Product[]>([]);
@@ -97,19 +103,19 @@ export default function DashboardScreen() {
 
   return (
     <ScrollView 
-      style={styles.container}
+      style={styles.dashboardContainer}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          colors={['#007AFF']} // iOS
-          tintColor="#007AFF" // iOS
-          title="Refreshing..." // iOS
-          titleColor="#666666" // iOS
+          colors={[styles.colors.tint]} 
+          tintColor={styles.colors.tint}
+          title="Refreshing..."
+          titleColor={styles.colors.tabIconDefault}
         />
       }
     >
-      <Text style={styles.title}>Dashboard</Text>
+      <Text style={styles.dashboardTitle}>Dashboard</Text>
       
       {/* Category Distribution Pie Chart */}
       <View style={styles.chartContainer}>
@@ -190,72 +196,3 @@ export default function DashboardScreen() {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  chartContainer: {
-    marginBottom: 20,
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  chartTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-  listContainer: {
-    marginBottom: 20,
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: '#fff',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  listItem: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
-  },
-  itemName: {
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  stockWarning: {
-    color: '#ff6b6b',
-    marginTop: 5,
-  },
-  categoryText: {
-    color: '#666',
-    marginTop: 5,
-    fontSize: 14,
-  },
-  noDataText: {
-    textAlign: 'center',
-    color: '#666',
-    fontStyle: 'italic',
-    padding: 20,
-  },
-});
