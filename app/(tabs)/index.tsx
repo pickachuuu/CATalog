@@ -6,6 +6,7 @@ import { getProducts, getLowStockProducts, getCategories } from '@/services/stor
 import { Product, Category } from '@/types/types';
 import { createCommonStyles } from '@/style/stylesheet';
 import { useColorScheme } from '@/components/useColorScheme';
+import { useData } from '@/context/DataContext';
 
 // Helper function to generate random colors for categories
 const getRandomColor = () => {
@@ -14,6 +15,7 @@ const getRandomColor = () => {
 };
 
 export default function DashboardScreen() {
+  const { refreshTrigger, refreshData } = useData();
   const colorScheme = useColorScheme();
   const isDarkMode = colorScheme === 'dark';
   const styles = useMemo(() => createCommonStyles(isDarkMode), [isDarkMode]);
@@ -36,10 +38,10 @@ export default function DashboardScreen() {
     }
   }, []);
 
-  // Initial load
+  // Initial load and refresh when refreshTrigger changes
   useEffect(() => {
     loadData();
-  }, [loadData]);
+  }, [loadData, refreshTrigger]);
 
   // Set up auto-refresh interval
   useEffect(() => {
@@ -52,9 +54,9 @@ export default function DashboardScreen() {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadData();
+    await Promise.all([loadData(), refreshData()]);
     setRefreshing(false);
-  }, [loadData]);
+  }, [loadData, refreshData]);
 
   // Calculate category distribution using useMemo to prevent unnecessary recalculations
   const categoryData = useMemo(() => {
