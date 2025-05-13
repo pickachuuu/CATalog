@@ -231,7 +231,7 @@ export default function ProductsScreen() {
             ListEmptyComponent={
               <View style={commonStyles.emptyContainer}>
                 <Image 
-                  source={{ uri: 'https://via.placeholder.com/150?text=Empty' }} 
+                  source={require('../../assets/images/empty.png')} 
                   style={commonStyles.emptyImage} 
                 />
                 <Text style={commonStyles.emptyText}>
