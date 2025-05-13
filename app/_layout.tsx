@@ -3,13 +3,15 @@ import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { DataProvider } from '../context/DataContext';
+import OnboardingScreen from '../components/OnboardingScreen';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -29,6 +31,8 @@ export default function RootLayout() {
     ...FontAwesome.font,
   });
 
+  const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
+
   useEffect(() => {
     if (error) throw error;
   }, [error]);
@@ -39,8 +43,30 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  if (!loaded) {
+  // Check onboarding flag on mount
+  useEffect(() => {
+    const checkOnboarding = async () => {
+      try {
+        const value = await AsyncStorage.getItem('onboardingComplete');
+        setShowOnboarding(value !== 'true');
+      } catch (e) {
+        setShowOnboarding(false); // fallback to main app
+      }
+    };
+    checkOnboarding();
+  }, []);
+
+  const handleGetStarted = async () => {
+    await AsyncStorage.setItem('onboardingComplete', 'true');
+    setShowOnboarding(false);
+  };
+
+  if (!loaded || showOnboarding === null) {
     return null;
+  }
+
+  if (showOnboarding) {
+    return <OnboardingScreen onGetStarted={handleGetStarted} />;
   }
 
   return (
