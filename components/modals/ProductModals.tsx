@@ -57,6 +57,10 @@ export function ProductModals({
   const [optionsModalAnimation] = useState(new Animated.Value(0));
   const [addEditModalAnimation] = useState(new Animated.Value(0));
 
+  // Add local state for string inputs
+  const [quantityInput, setQuantityInput] = useState('');
+  const [thresholdInput, setThresholdInput] = useState('');
+
   // Add animation effects for each modal
   useEffect(() => {
     Animated.timing(deleteModalAnimation, {
@@ -85,6 +89,35 @@ export function ProductModals({
     }).start();
   }, [isAddModalVisible, isEditModalVisible]);
 
+  // Sync local state with modal open/close
+  useEffect(() => {
+    if (isAddModalVisible) {
+      setQuantityInput(newProduct.quantity?.toString() ?? '');
+      setThresholdInput(newProduct.lowStockThreshold?.toString() ?? '');
+    } else if (isEditModalVisible && editProduct) {
+      setQuantityInput(editProduct.quantity?.toString() ?? '');
+      setThresholdInput(editProduct.lowStockThreshold?.toString() ?? '');
+    }
+  }, [isAddModalVisible, isEditModalVisible, newProduct, editProduct]);
+
+  // Update product state on input change
+  const handleQuantityChange = (text: string) => {
+    setQuantityInput(text);
+    if (isAddModalVisible) {
+      setNewProduct({ ...newProduct, quantity: text === '' ? 0 : parseInt(text) });
+    } else if (isEditModalVisible && editProduct) {
+      setEditProduct({ ...editProduct, quantity: text === '' ? 0 : parseInt(text) });
+    }
+  };
+  const handleThresholdChange = (text: string) => {
+    setThresholdInput(text);
+    if (isAddModalVisible) {
+      setNewProduct({ ...newProduct, lowStockThreshold: text === '' ? 0 : parseInt(text) });
+    } else if (isEditModalVisible && editProduct) {
+      setEditProduct({ ...editProduct, lowStockThreshold: text === '' ? 0 : parseInt(text) });
+    }
+  };
+
   // Add transform interpolations for each modal
   const deleteModalTranslateY = deleteModalAnimation.interpolate({
     inputRange: [0, 1],
@@ -100,6 +133,11 @@ export function ProductModals({
     inputRange: [0, 1],
     outputRange: [50, 0],
   });
+
+  // Add a derived variable for name validity
+  const isNameValid = isAddModalVisible
+    ? !!newProduct.name.trim()
+    : !!editProduct?.name.trim();
 
   return (
     <>
@@ -290,15 +328,8 @@ export function ProductModals({
                         style={styles.input}
                         placeholder="0"
                         keyboardType="numeric"
-                        value={isAddModalVisible 
-                          ? newProduct.quantity.toString() 
-                          : editProduct?.quantity.toString() || '0'
-                        }
-                        onChangeText={(text) => 
-                          isAddModalVisible 
-                            ? setNewProduct({ ...newProduct, quantity: parseInt(text) || 0 })
-                            : setEditProduct({ ...editProduct!, quantity: parseInt(text) || 0 })
-                        }
+                        value={quantityInput}
+                        onChangeText={handleQuantityChange}
                         placeholderTextColor={styles.colors.tabIconDefault}
                       />
                     </View>
@@ -308,15 +339,8 @@ export function ProductModals({
                         style={styles.input}
                         placeholder="10"
                         keyboardType="numeric"
-                        value={isAddModalVisible 
-                          ? newProduct.lowStockThreshold?.toString() || '' 
-                          : editProduct?.lowStockThreshold?.toString() || ''
-                        }
-                        onChangeText={(text) =>
-                          isAddModalVisible
-                            ? setNewProduct({ ...newProduct, lowStockThreshold: parseInt(text) || 10 })
-                            : setEditProduct({ ...editProduct!, lowStockThreshold: parseInt(text) || 10 })
-                        }
+                        value={thresholdInput}
+                        onChangeText={handleThresholdChange}
                         placeholderTextColor={styles.colors.tabIconDefault}
                       />
                     </View>
@@ -353,9 +377,10 @@ export function ProductModals({
                     <Text style={styles.cancelButtonText}>Cancel</Text>
                   </TouchableOpacity>
                   <TouchableOpacity 
-                    style={[styles.button, styles.saveButton]} 
+                    style={[styles.button, styles.saveButton, !isNameValid && { opacity: 0.5 }]} 
                     onPress={isAddModalVisible ? onSave : onUpdate}
                     activeOpacity={0.7}
+                    disabled={!isNameValid}
                   >
                     <Text style={styles.saveButtonText}>
                       {isAddModalVisible ? 'Save Product' : 'Update Product'}
