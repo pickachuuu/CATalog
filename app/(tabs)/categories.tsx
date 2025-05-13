@@ -181,6 +181,9 @@ export default function CategoriesScreen() {
         icon="plus"
         style={commonStyles.fab}
         onPress={handleAddCategory}
+        color={commonStyles.colors.background} // matches styles.colors.background from ProductsScreen
+        label="Add Category"
+        uppercase={false}
       />
     </View>
   );
