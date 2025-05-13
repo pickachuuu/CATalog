@@ -54,22 +54,21 @@ export default function ProductsScreen() {
     if (!searchQuery.trim()) {
       return products;
     }
-    
+  
     const normalizedQuery = searchQuery.toLowerCase().trim();
-    
+  
     return products.filter(product => {
-      if (product.name.toLowerCase().includes(normalizedQuery)) {
-        return true;
-      }
-      if (product.category && product.category.toLowerCase().includes(normalizedQuery)) {
-        return true;
-      }
-      if (product.quantity.toString().includes(normalizedQuery)) {
-        return true;
-      }
-      return false;
+      const category = categories.find(cat => cat.id === product.category);
+      const categoryName = category?.name.toLowerCase() ?? '';
+  
+      return (
+        product.name.toLowerCase().includes(normalizedQuery) ||
+        categoryName.includes(normalizedQuery) ||
+        product.quantity.toString().includes(normalizedQuery)
+      );
     });
-  }, [products, searchQuery]);
+  }, [products, categories, searchQuery]);
+  
 
   const handleSearch = (text: string) => {
     setSearchQuery(text);
