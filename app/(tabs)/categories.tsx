@@ -1,12 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import {
-  StyleSheet,
   View,
   Text,
   FlatList,
-  TouchableOpacity,
-  Modal,
-  TextInput,
   Animated,
   Easing,
   useColorScheme,
@@ -23,7 +19,6 @@ export default function CategoriesScreen() {
     addCategory,
     updateCategory,
     deleteCategory,
-    refreshData
   } = useData();
   
   const colorScheme = useColorScheme();
@@ -116,7 +111,7 @@ export default function CategoriesScreen() {
         <View style={commonStyles.productInfo}>
           <Text style={commonStyles.productName}>{item.name}</Text>
         </View>
-        <View style={styles.actionButtons}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <IconButton
             icon="pencil"
             size={20}
@@ -137,24 +132,13 @@ export default function CategoriesScreen() {
     </Card>
   );
 
-  // Modal transform animations
-  const modalTranslateY = modalAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [50, 0],
-  });
-
-  const deleteOpacity = deleteModalAnimation.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 1],
-  });
-
   return (
-    <View style={styles.container}>
+    <View style={commonStyles.container}>
       <FlatList
         data={categories}
         renderItem={renderCategoryItem}
         keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContainer}
+        contentContainerStyle={commonStyles.productList}
       />
 
       {/* Add Category Modal */}
@@ -201,79 +185,3 @@ export default function CategoriesScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  listContainer: {
-    padding: 16,
-    paddingBottom: 100,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
-    width: '90%',
-    maxWidth: 400,
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-    fontSize: 16,
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  button: {
-    flex: 1,
-    padding: 12,
-    borderRadius: 8,
-    marginHorizontal: 4,
-  },
-  cancelButton: {
-    backgroundColor: '#f0f0f0',
-  },
-  saveButton: {
-    backgroundColor: '#007AFF',
-  },
-  deleteButton: {
-    backgroundColor: '#FF3B30',
-  },
-  buttonText: {
-    textAlign: 'center',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  saveButtonText: {
-    color: 'white',
-  },
-  deleteButtonText: {
-    color: 'white',
-  },
-  deleteMessage: {
-    textAlign: 'center',
-    marginBottom: 16,
-    color: '#666',
-  },
-});
