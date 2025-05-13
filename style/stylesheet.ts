@@ -849,6 +849,54 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         fontSize: 16,
         fontWeight: '600',
       },
+      // Onboarding styles
+      onboardingContainer: {
+        flex: 1,
+        backgroundColor: theme.background,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 60,
+        paddingHorizontal: 24,
+      },
+      onboardingCenterContent: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+      },
+      onboardingLogo: {
+        width: 120,
+        height: 120,
+        marginBottom: 32,
+        resizeMode: 'contain',
+      },
+      onboardingTitle: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        marginBottom: 16,
+        color: theme.text,
+        textAlign: 'center',
+      },
+      onboardingDescription: {
+        fontSize: 16,
+        color: theme.tabIconDefault,
+        textAlign: 'center',
+        marginBottom: 24,
+        paddingHorizontal: 8,
+      },
+      onboardingButton: {
+        width: '100%',
+        backgroundColor: theme.tint,
+        paddingVertical: 18,
+        borderRadius: 12,
+        alignItems: 'center',
+        marginBottom: 16,
+      },
+      onboardingButtonText: {
+        color: theme.background,
+        fontSize: 18,
+        fontWeight: 'bold',
+      },
     }),
 
     colors: {
