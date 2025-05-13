@@ -133,7 +133,8 @@ export default function CategoriesScreen() {
   );
 
   return (
-    <View style={commonStyles.container}>
+    <View style={{ flex: 1, backgroundColor: commonStyles.colors.background }}>
+      <View style={commonStyles.container}>
       <FlatList
         data={categories}
         renderItem={renderCategoryItem}
@@ -185,6 +186,7 @@ export default function CategoriesScreen() {
         label="Add Category"
         uppercase={false}
       />
+    </View>
     </View>
   );
 }
