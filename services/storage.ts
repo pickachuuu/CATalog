@@ -259,3 +259,5 @@ export const clearAllData = async (): Promise<void> => {
         throw error;
     }
 };
+
+export default storage;
