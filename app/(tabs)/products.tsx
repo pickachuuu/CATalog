@@ -85,6 +85,14 @@ export default function ProductsScreen() {
   const handleSaveProduct = async () => {
     try {
       await addProduct(newProduct);
+      // Reset the form to initial state
+      setNewProduct({
+        name: '',
+        quantity: 0,
+        category: '',
+        image: '',
+        lowStockThreshold: 10,
+      });
       setIsAddModalVisible(false);
     } catch (error) {
       console.error('Error saving product:', error);
