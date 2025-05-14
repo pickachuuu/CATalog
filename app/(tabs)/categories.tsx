@@ -13,6 +13,7 @@ import { Category } from '@/types/types';
 import { createCommonStyles } from '@/style/stylesheet';
 import { useData } from '../../context/DataContext';
 import { CategoryDeleteModal, CategoryAddEditModal } from '@/components/modals/CategoryModals';
+import Toast from 'react-native-toast-message';
 
 export default function CategoriesScreen() {
   const {
@@ -66,8 +67,23 @@ export default function CategoriesScreen() {
         await addCategory({ name: newCategoryName.trim() });
         setNewCategoryName('');
         setIsAddModalVisible(false);
+        
+        Toast.show({
+          type: 'success',
+          text1: 'Category Added',
+          text2: `${newCategoryName} has been added successfully`,
+          visibilityTime: 2000,
+          position: 'bottom',
+        });
       } catch (error) {
         console.error('Error saving category:', error);
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'Failed to add category',
+          visibilityTime: 2000,
+          position: 'bottom',
+        });
       }
     }
   };
@@ -88,8 +104,23 @@ export default function CategoriesScreen() {
         setSelectedCategory(null);
         setEditCategoryName('');
         setIsEditModalVisible(false);
+
+        Toast.show({
+          type: 'success',
+          text1: 'Category Updated',
+          text2: `Category has been updated successfully`,
+          visibilityTime: 2000,
+          position: 'bottom',
+        });
       } catch (error) {
         console.error('Error updating category:', error);
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'Failed to update category',
+          visibilityTime: 2000,
+          position: 'bottom',
+        });
       }
     }
   };
@@ -100,8 +131,23 @@ export default function CategoriesScreen() {
         await deleteCategory(selectedCategory.id);
         setSelectedCategory(null);
         setIsDeleteConfirmVisible(false);
+
+        Toast.show({
+          type: 'success',
+          text1: 'Category Deleted',
+          text2: `${selectedCategory.name} has been deleted`,
+          visibilityTime: 2000,
+          position: 'bottom',
+        });
       } catch (error) {
         console.error('Error deleting category:', error);
+        Toast.show({
+          type: 'error',
+          text1: 'Error',
+          text2: 'Failed to delete category',
+          visibilityTime: 2000,
+          position: 'bottom',
+        });
       }
     }
   };
