@@ -8,6 +8,7 @@ import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Toast from 'react-native-toast-message';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { DataProvider } from '../context/DataContext';
@@ -71,7 +72,10 @@ export default function RootLayout() {
 
   return (
     <DataProvider>
-      <RootLayoutNav />
+      <>
+        <RootLayoutNav />
+        <Toast />
+      </>
     </DataProvider>
   );
 }
