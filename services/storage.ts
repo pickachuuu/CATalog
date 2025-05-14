@@ -137,7 +137,6 @@ export const getCategories = async (): Promise<Category[]> => {
         return categories || [];
     } catch (error) {
         if (error instanceof Error && error.name === 'NotFoundError') {
-            console.log('No categories found, returning empty array');
             return [];
         }
         console.error('Error getting categories:', error);
