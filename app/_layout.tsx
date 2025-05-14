@@ -9,6 +9,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Toast from 'react-native-toast-message';
+import { BaseToast } from 'react-native-toast-message';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { DataProvider } from '../context/DataContext';
@@ -82,10 +83,56 @@ export default function RootLayout() {
 
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
+  const theme = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
+
+  const toastConfig = {
+    success: (props) => (
+      <BaseToast
+        {...props}
+        style={{
+          backgroundColor: colorScheme === 'dark' ? '#1A0606' : '#FFF1DB',
+          borderLeftColor: colorScheme === 'dark' ? '#FF4F4F' : '#E66B00',
+        }}
+        contentContainerStyle={{
+          paddingHorizontal: 15,
+        }}
+        text1Style={{
+          fontSize: 16,
+          fontWeight: '600',
+          color: colorScheme === 'dark' ? '#FFE0DE' : '#431C00',
+        }}
+        text2Style={{
+          fontSize: 14,
+          color: colorScheme === 'dark' ? '#E27676' : '#B57640',
+        }}
+      />
+    ),
+    error: (props) => (
+      <BaseToast
+        {...props}
+        style={{
+          backgroundColor: colorScheme === 'dark' ? '#1A0606' : '#FFF1DB',
+          borderLeftColor: colorScheme === 'dark' ? '#FF5A5A' : '#CC3B0A',
+        }}
+        contentContainerStyle={{
+          paddingHorizontal: 15,
+        }}
+        text1Style={{
+          fontSize: 16,
+          fontWeight: '600',
+          color: colorScheme === 'dark' ? '#FFE0DE' : '#431C00',
+        }}
+        text2Style={{
+          fontSize: 14,
+          color: colorScheme === 'dark' ? '#E27676' : '#B57640',
+        }}
+      />
+    ),
+  };
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+      <ThemeProvider value={theme}>
         {/* Fix Android status bar behavior */}
         <StatusBar
           translucent
@@ -96,6 +143,7 @@ function RootLayoutNav() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         </Stack>
       </ThemeProvider>
+      <Toast config={toastConfig} />
     </SafeAreaProvider>
   );
 }
