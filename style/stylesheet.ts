@@ -254,7 +254,7 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         alignSelf: 'flex-start',
         marginBottom: 8,
       },
-      categoryText: {
+      categoryBadgeText: {
         fontSize: 12,
         color: theme.text,
         fontWeight: '500',
@@ -311,7 +311,6 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         width: 120,
         height: 120,
         marginBottom: 16,
-        opacity: 0.6,
       },
       emptyText: {
         fontSize: 20,
@@ -562,6 +561,340 @@ export const createCommonStyles = (isDarkMode: boolean) => {
         borderBottomColor: theme.borderColor, // Use theme border color
         borderBottomWidth: StyleSheet.hairlineWidth,
         marginVertical: 0.5,
+      },
+      // Add these styles to createCommonStyles
+      dashboardContainer: {
+        backgroundColor: theme.background,
+        flex: 1,
+        padding: 20,
+      },
+      dashboardTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 20,
+        color: theme.text,
+      },
+      chartContainer: {
+        marginBottom: 20,
+        padding: 10,
+        borderRadius: 16,
+        backgroundColor: theme.secondaryBackground,
+        ...Platform.select({
+          ios: {
+            shadowColor: theme.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 10,
+          },
+          android: {
+            elevation: 5,
+          },
+        }),
+      },
+      chartTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: theme.text,
+      },
+      listContainer: {
+        marginBottom: 20,
+        padding: 10,
+        borderRadius: 16,
+        backgroundColor: theme.secondaryBackground,
+        ...Platform.select({
+          ios: {
+            shadowColor: theme.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 10,
+          },
+          android: {
+            elevation: 5,
+          },
+        }),
+      },
+      listItem: {
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.borderColor,
+      },
+      itemName: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: theme.text,
+      },
+      stockWarning: {
+        color: theme.error,
+        marginTop: 5,
+      },
+      categoryText: {
+        color: theme.tabIconDefault,
+        marginTop: 5,
+        fontSize: 14,
+      },
+      noDataText: {
+        textAlign: 'center',
+        color: theme.tabIconDefault,
+        fontStyle: 'italic',
+        padding: 20,
+      },
+      // Dashboard specific styles
+      dashboardStats: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        marginBottom: 24,
+      },
+      statCard: {
+        width: '31%',
+        backgroundColor: theme.secondaryBackground,
+        borderRadius: 12,
+        padding: 16,
+        ...Platform.select({
+          ios: {
+            shadowColor: theme.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 8,
+          },
+          android: {
+            elevation: 4,
+          },
+        }),
+      },
+      statIcon: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: `${theme.tint}15`,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 8,
+        alignSelf: 'center',
+      },
+      statValue: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: theme.text,
+        textAlign: 'center',
+        marginBottom: 4,
+      },
+      statLabel: {
+        fontSize: 12,
+        color: theme.tabIconDefault,
+        textAlign: 'center',
+      },
+      chartSection: {
+        marginBottom: 24,
+        padding: 16,
+        borderRadius: 16,
+        backgroundColor: theme.secondaryBackground,
+        ...Platform.select({
+          ios: {
+            shadowColor: theme.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 8,
+          },
+          android: {
+            elevation: 4,
+          },
+        }),
+      },
+      lowStockSection: {
+        marginBottom: 24,
+        borderRadius: 16,
+        backgroundColor: theme.secondaryBackground,
+        overflow: 'hidden',
+        ...Platform.select({
+          ios: {
+            shadowColor: theme.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 8,
+          },
+          android: {
+            elevation: 4,
+          },
+        }),
+      },
+      lowStockHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.borderColor,
+      },
+      lowStockTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: theme.text,
+        flex: 1,
+      },
+      lowStockItem: {
+        flexDirection: 'row',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: theme.borderColor,
+      },
+      lowStockInfo: {
+        flex: 1,
+      },
+      lowStockName: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: theme.text,
+        marginBottom: 4,
+      },
+      lowStockCategory: {
+        fontSize: 14,
+        color: theme.tabIconDefault,
+      },
+      stockCount: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: theme.error,
+      },
+      stockThreshold: {
+        fontSize: 12,
+        color: theme.tabIconDefault,
+        marginTop: 4,
+      },
+      smallModalContainer: {
+        width: width * 0.8,
+        backgroundColor: theme.background,
+        borderRadius: 12,
+        padding: 16,
+        ...Platform.select({
+          ios: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 10,
+          },
+          android: {
+            elevation: 5,
+          },
+        }),
+      },
+      smallModalTitle: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: theme.text,
+        marginBottom: 16,
+        textAlign: 'center',
+      },
+      smallModalInput: {
+        borderWidth: 1,
+        borderColor: theme.borderColor,
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 16,
+        color: theme.text,
+        backgroundColor: isDarkMode ? '#2C2C2C' : theme.background,
+        marginBottom: 16,
+      },
+      smallModalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        gap: 12,
+      },
+      smallModalCancelButton: {
+        flex: 1,
+        backgroundColor: theme.borderColor,
+        padding: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        ...Platform.select({
+          ios: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+          },
+          android: {
+            elevation: 2,
+          },
+        }),
+      },
+      smallModalSaveButton: {
+        flex: 1,
+        backgroundColor: theme.tint,
+        padding: 12,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        ...Platform.select({
+          ios: {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+          },
+          android: {
+            elevation: 2,
+          },
+        }),
+      },
+      smallModalCancelText: {
+        color: theme.text,
+        fontSize: 16,
+        fontWeight: '600',
+      },
+      smallModalSaveText: {
+        color: theme.background,
+        fontSize: 16,
+        fontWeight: '600',
+      },
+      // Onboarding styles
+      onboardingContainer: {
+        flex: 1,
+        backgroundColor: theme.background,
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingVertical: 60,
+        paddingHorizontal: 24,
+      },
+      onboardingCenterContent: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+      },
+      onboardingLogo: {
+        width: 120,
+        height: 120,
+        marginBottom: 32,
+        resizeMode: 'contain',
+      },
+      onboardingTitle: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        marginBottom: 16,
+        color: theme.text,
+        textAlign: 'center',
+      },
+      onboardingDescription: {
+        fontSize: 16,
+        color: theme.tabIconDefault,
+        textAlign: 'center',
+        marginBottom: 24,
+        paddingHorizontal: 8,
+      },
+      onboardingButton: {
+        width: '100%',
+        backgroundColor: theme.tint,
+        paddingVertical: 18,
+        borderRadius: 12,
+        alignItems: 'center',
+        marginBottom: 16,
+      },
+      onboardingButtonText: {
+        color: theme.background,
+        fontSize: 18,
+        fontWeight: 'bold',
       },
     }),
 
