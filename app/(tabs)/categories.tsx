@@ -6,6 +6,7 @@ import {
   Animated,
   Easing,
   useColorScheme,
+    Image,
 } from 'react-native';
 import { FAB, IconButton, Card } from 'react-native-paper';
 import { Category } from '@/types/types';
@@ -135,58 +136,72 @@ export default function CategoriesScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: commonStyles.colors.background }}>
       <View style={commonStyles.container}>
-      <FlatList
-        data={categories}
-        renderItem={renderCategoryItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={commonStyles.productList}
-      />
+        <FlatList
+          data={categories}
+          renderItem={renderCategoryItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={commonStyles.productList}
+          ListEmptyComponent={
+            <View style={commonStyles.emptyContainer}>
+              <Image 
+                source={require('../../assets/images/empty.png')} 
+                style={commonStyles.emptyImage} 
+              />
+              <Text style={commonStyles.emptyText}>
+                No categories found
+              </Text>
+              <Text style={commonStyles.emptySubtext}>
+                Add a new category to get started
+              </Text>
+            </View>
+          }
+        />
 
-      {/* Add Category Modal */}
-      <CategoryAddEditModal
-        isVisible={isAddModalVisible}
-        title="Add New Category"
-        value={newCategoryName}
-        onChangeText={setNewCategoryName}
-        onSave={handleSaveCategory}
-        onClose={() => setIsAddModalVisible(false)}
-        styles={commonStyles}
-        modalAnimation={modalAnimation}
-        buttonText="Save Category"
-      />
+        {/* Add Category Modal */}
+        <CategoryAddEditModal
+          isVisible={isAddModalVisible}
+          title="Add New Category"
+          value={newCategoryName}
+          onChangeText={setNewCategoryName}
+          onSave={handleSaveCategory}
+          onClose={() => setIsAddModalVisible(false)}
+          styles={commonStyles}
+          modalAnimation={modalAnimation}
+          buttonText="Save Category"
+        />
 
-      {/* Edit Category Modal */}
-      <CategoryAddEditModal
-        isVisible={isEditModalVisible}
-        title="Edit Category"
-        value={editCategoryName}
-        onChangeText={setEditCategoryName}
-        onSave={handleUpdateCategory}
-        onClose={() => setIsEditModalVisible(false)}
-        styles={commonStyles}
-        modalAnimation={modalAnimation}
-        buttonText="Update"
-      />
+        {/* Edit Category Modal */}
+        <CategoryAddEditModal
+          isVisible={isEditModalVisible}
+          title="Edit Category"
+          value={editCategoryName}
+          onChangeText={setEditCategoryName}
+          onSave={handleUpdateCategory}
+          onClose={() => setIsEditModalVisible(false)}
+          styles={commonStyles}
+          modalAnimation={modalAnimation}
+          buttonText="Update"
+        />
 
-      {/* Delete Confirmation Modal */}
-      <CategoryDeleteModal
-        isDeleteConfirmVisible={isDeleteConfirmVisible}
-        selectedCategory={selectedCategory}
-        styles={commonStyles}
-        deleteModalAnimation={deleteModalAnimation}
-        onCloseDeleteModal={() => setIsDeleteConfirmVisible(false)}
-        onDeleteConfirm={handleDeleteCategory}
-      />
+        {/* Delete Confirmation Modal */}
+        <CategoryDeleteModal
+          isDeleteConfirmVisible={isDeleteConfirmVisible}
+          selectedCategory={selectedCategory}
+          styles={commonStyles}
+          deleteModalAnimation={deleteModalAnimation}
+          onCloseDeleteModal={() => setIsDeleteConfirmVisible(false)}
+          onDeleteConfirm={handleDeleteCategory}
+        />
 
-      <FAB
-        icon="plus"
-        style={commonStyles.fab}
-        onPress={handleAddCategory}
-        color={commonStyles.colors.background} // matches styles.colors.background from ProductsScreen
-        label="Add Category"
-        uppercase={false}
-      />
-    </View>
+        <FAB
+          icon="plus"
+          style={commonStyles.fab}
+          onPress={handleAddCategory}
+          color={commonStyles.colors.background} // matches styles.colors.background from ProductsScreen
+          label="Add Category"
+          uppercase={false}
+        />
+      </View>
     </View>
   );
 }
