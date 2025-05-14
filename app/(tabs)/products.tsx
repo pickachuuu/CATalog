@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import {
+import { 
   View,
   Text,
   FlatList,
@@ -15,6 +15,7 @@ import { Product } from '@/types/types';
 import { createCommonStyles } from '@/style/stylesheet';
 import { useData } from '../../context/DataContext';
 import { ProductModals } from '@/components/modals/ProductModals';
+import Toast from 'react-native-toast-message';
 
 const { width, height } = Dimensions.get('window');
 
@@ -94,8 +95,25 @@ export default function ProductsScreen() {
         lowStockThreshold: 10,
       });
       setIsAddModalVisible(false);
+      
+      // Show success toast
+      Toast.show({
+        type: 'success',
+        text1: 'Product Added',
+        text2: `${newProduct.name} has been added successfully`,
+        visibilityTime: 2000,
+        position: 'bottom',
+      });
     } catch (error) {
       console.error('Error saving product:', error);
+      // Show error toast
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Failed to add product',
+        visibilityTime: 2000,
+        position: 'bottom',
+      });
     }
   };
 
