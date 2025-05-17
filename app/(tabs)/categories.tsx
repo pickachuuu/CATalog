@@ -73,7 +73,7 @@ export default function CategoriesScreen() {
           text1: 'Category Added',
           text2: `${newCategoryName} has been added successfully`,
           visibilityTime: 2000,
-          position: 'bottom',
+          position: 'top',
         });
       } catch (error) {
         console.error('Error saving category:', error);
@@ -82,7 +82,7 @@ export default function CategoriesScreen() {
           text1: 'Error',
           text2: 'Failed to add category',
           visibilityTime: 2000,
-          position: 'bottom',
+          position: 'top',
         });
       }
     }
@@ -110,7 +110,7 @@ export default function CategoriesScreen() {
           text1: 'Category Updated',
           text2: `Category has been updated successfully`,
           visibilityTime: 2000,
-          position: 'bottom',
+          position: 'top',
         });
       } catch (error) {
         console.error('Error updating category:', error);
@@ -119,7 +119,7 @@ export default function CategoriesScreen() {
           text1: 'Error',
           text2: 'Failed to update category',
           visibilityTime: 2000,
-          position: 'bottom',
+          position: 'top',
         });
       }
     }
@@ -137,7 +137,7 @@ export default function CategoriesScreen() {
           text1: 'Category Deleted',
           text2: `${selectedCategory.name} has been deleted`,
           visibilityTime: 2000,
-          position: 'bottom',
+          position: 'top',
         });
       } catch (error) {
         console.error('Error deleting category:', error);
@@ -146,7 +146,7 @@ export default function CategoriesScreen() {
           text1: 'Error',
           text2: 'Failed to delete category',
           visibilityTime: 2000,
-          position: 'bottom',
+          position: 'top',
         });
       }
     }
