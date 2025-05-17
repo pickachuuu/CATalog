@@ -133,34 +133,6 @@ export default function DashboardScreen() {
         </Surface>
       </View>
 
-      {/* Category Distribution */}
-      <Surface style={styles.chartSection}>
-        <View style={styles.lowStockHeader}>
-          <MaterialCommunityIcons name="chart-pie" size={24} color={styles.colors.tint} />
-          <Text style={[styles.lowStockTitle, { marginLeft: 12 }]}>Category Distribution</Text>
-        </View>
-        {categoryData.length > 0 ? (
-          <PieChart
-            data={categoryData}
-            width={Dimensions.get('window').width - 48}
-            height={220}
-            chartConfig={{
-              backgroundColor: 'transparent',
-              backgroundGradientFrom: 'white',
-              backgroundGradientTo: 'white',
-              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-              labelColor: (opacity = 1) => styles.colors.text,
-            }}
-            accessor="population"
-            backgroundColor="transparent"
-            paddingLeft="15"
-            absolute
-          />
-        ) : (
-          <Text style={styles.noDataText}>No category data available</Text>
-        )}
-      </Surface>
-
       {/* Low Stock Alerts */}
       <Surface style={styles.lowStockSection}>
         <View style={styles.lowStockHeader}>
@@ -205,6 +177,36 @@ export default function DashboardScreen() {
           </View>
         )}
       </Surface>
+
+      
+      {/* Category Distribution */}
+      <Surface style={styles.chartSection}>
+        <View style={styles.lowStockHeader}>
+          <MaterialCommunityIcons name="chart-pie" size={24} color={styles.colors.tint} />
+          <Text style={[styles.lowStockTitle, { marginLeft: 12 }]}>Category Distribution</Text>
+        </View>
+        {categoryData.length > 0 ? (
+          <PieChart
+            data={categoryData}
+            width={Dimensions.get('window').width - 48}
+            height={220}
+            chartConfig={{
+              backgroundColor: 'transparent',
+              backgroundGradientFrom: 'white',
+              backgroundGradientTo: 'white',
+              color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+              labelColor: (opacity = 1) => styles.colors.text,
+            }}
+            accessor="population"
+            backgroundColor="transparent"
+            paddingLeft="15"
+            absolute
+          />
+        ) : (
+          <Text style={styles.noDataText}>No category data available</Text>
+        )}
+      </Surface>
+
     </ScrollView>
   );
 }

@@ -38,54 +38,73 @@ export default function SettingsScreen() {
   };
 
   const handleExportData = async () => {
-    try {
-      const { status } = await MediaLibrary.requestPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission Denied', 'Cannot access Downloads folder.');
-        return;
-      }
-
-      const products = await getProducts();
-      const categories = await getCategories();
-
-      const data = JSON.stringify({ products, categories }, null, 2);
-      const fileName = 'catalog-export.json';
-      const fileUri = FileSystem.cacheDirectory + fileName;
-
-      await FileSystem.writeAsStringAsync(fileUri, data);
-
-      const asset = await MediaLibrary.createAssetAsync(fileUri);
-      const album = await MediaLibrary.getAlbumAsync('Download');
-      if (album) {
-        await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
-      } else {
-        await MediaLibrary.createAlbumAsync('Download', asset, false);
-      }
-
-      Alert.alert('Export Successful', 'Data saved to Pictures/Download.');
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Export Failed', 'Could not export data.');
-    }
+    Alert.alert('Export Data', 'Would you like to export your inventory data?',
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {
+         text: 'Export',
+         onPress: async () => {
+          try {
+            const { status } = await MediaLibrary.requestPermissionsAsync();
+            if (status !== 'granted') {
+              Alert.alert('Permission Denied', 'Cannot access Downloads folder.');
+              return;
+            }
+      
+            const products = await getProducts();
+            const categories = await getCategories();
+      
+            const data = JSON.stringify({ products, categories }, null, 2);
+            const fileName = 'catalog-export.json';
+            const fileUri = FileSystem.cacheDirectory + fileName;
+      
+            await FileSystem.writeAsStringAsync(fileUri, data);
+      
+            const asset = await MediaLibrary.createAssetAsync(fileUri);
+            const album = await MediaLibrary.getAlbumAsync('Download');
+            if (album) {
+              await MediaLibrary.addAssetsToAlbumAsync([asset], album, false);
+            } else {
+              await MediaLibrary.createAlbumAsync('Download', asset, false);
+            }
+      
+            Alert.alert('Export Successful', 'Data saved to Pictures/Download.');
+          } catch (error) {
+            console.error(error);
+            Alert.alert('Export Failed', 'Could not export data.');
+          }
+         } 
+        }
+      ]
+    )
   };
 
   const handleImportData = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({ type: 'application/json' });
-      if (result.canceled || !result.assets?.[0]) return;
-
-      const fileUri = result.assets[0].uri;
-      const content = await FileSystem.readAsStringAsync(fileUri);
-      const { products = [], categories = [] } = JSON.parse(content);
-
-      await storage.save({ key: PRODUCTS_KEY, data: products });
-      await storage.save({ key: CATEGORIES_KEY, data: categories });
-
-      Alert.alert('Import Successful', 'Data has been imported.');
-    } catch (error) {
-      console.error(error);
-      Alert.alert('Import Failed', 'Could not import data.');
-    }
+    Alert.alert('Import Data', 'Would you like to import inventory data from a JSON file?', 
+      [
+        { text:'Cancel', style: 'cancel' }, 
+        { text: 'Import',
+          onPress: async () => {
+            try {
+              const result = await DocumentPicker.getDocumentAsync({ type: 'application/json' });
+              if (result.canceled || !result.assets?.[0]) return;
+        
+              const fileUri = result.assets[0].uri;
+              const content = await FileSystem.readAsStringAsync(fileUri);
+              const { products = [], categories = [] } = JSON.parse(content);
+        
+              await storage.save({ key: PRODUCTS_KEY, data: products });
+              await storage.save({ key: CATEGORIES_KEY, data: categories });
+        
+              Alert.alert('Import Successful', 'Data has been imported.');
+            } catch (error) {
+              console.error(error);
+              Alert.alert('Import Failed', 'Could not import data.');
+            }
+          }
+        }
+      ]
+    )
   };
 
   const resetProducts = async () => {
