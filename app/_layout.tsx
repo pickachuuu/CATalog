@@ -8,12 +8,12 @@ import { StatusBar } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import 'react-native-reanimated';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Toast from 'react-native-toast-message';
-import { BaseToast } from 'react-native-toast-message';
+import Toast, { BaseToast } from 'react-native-toast-message';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { DataProvider } from '../context/DataContext';
 import OnboardingScreen from '../components/OnboardingScreen';
+import Colors from '../constants/Colors';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -34,6 +34,54 @@ export default function RootLayout() {
   });
 
   const [showOnboarding, setShowOnboarding] = useState<boolean | null>(null);
+
+  const colorScheme = useColorScheme();
+  const appTheme = colorScheme === 'dark' ? 'dark' : 'light';
+
+  const toastConfig = {
+    success: (props: any) => (
+      <BaseToast
+        {...props}
+        style={{
+          backgroundColor: Colors[appTheme].background,
+          borderLeftColor: Colors[appTheme].tint,
+        }}
+        contentContainerStyle={{
+          paddingHorizontal: 15,
+        }}
+        text1Style={{
+          fontSize: 16,
+          fontWeight: '600',
+          color: Colors[appTheme].text,
+        }}
+        text2Style={{
+          fontSize: 14,
+          color: Colors[appTheme].tabIconDefault,
+        }}
+      />
+    ),
+    error: (props: any) => (
+      <BaseToast
+        {...props}
+        style={{
+          backgroundColor: Colors[appTheme].background,
+          borderLeftColor: Colors[appTheme].error,
+        }}
+        contentContainerStyle={{
+          paddingHorizontal: 15,
+        }}
+        text1Style={{
+          fontSize: 16,
+          fontWeight: '600',
+          color: Colors[appTheme].text,
+        }}
+        text2Style={{
+          fontSize: 14,
+          color: Colors[appTheme].tabIconDefault,
+        }}
+      />
+    ),
+  };
 
   useEffect(() => {
     if (error) throw error;
@@ -73,10 +121,8 @@ export default function RootLayout() {
 
   return (
     <DataProvider>
-      <>
-        <RootLayoutNav />
-        <Toast />
-      </>
+      <RootLayoutNav />
+      <Toast config={toastConfig} key={appTheme} />
     </DataProvider>
   );
 }
@@ -84,51 +130,7 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const theme = colorScheme === 'dark' ? DarkTheme : DefaultTheme;
-
-  const toastConfig = {
-    success: (props) => (
-      <BaseToast
-        {...props}
-        style={{
-          backgroundColor: colorScheme === 'dark' ? '#1A0606' : '#FFF1DB',
-          borderLeftColor: colorScheme === 'dark' ? '#FF4F4F' : '#E66B00',
-        }}
-        contentContainerStyle={{
-          paddingHorizontal: 15,
-        }}
-        text1Style={{
-          fontSize: 16,
-          fontWeight: '600',
-          color: colorScheme === 'dark' ? '#FFE0DE' : '#431C00',
-        }}
-        text2Style={{
-          fontSize: 14,
-          color: colorScheme === 'dark' ? '#E27676' : '#B57640',
-        }}
-      />
-    ),
-    error: (props) => (
-      <BaseToast
-        {...props}
-        style={{
-          backgroundColor: colorScheme === 'dark' ? '#1A0606' : '#FFF1DB',
-          borderLeftColor: colorScheme === 'dark' ? '#FF5A5A' : '#CC3B0A',
-        }}
-        contentContainerStyle={{
-          paddingHorizontal: 15,
-        }}
-        text1Style={{
-          fontSize: 16,
-          fontWeight: '600',
-          color: colorScheme === 'dark' ? '#FFE0DE' : '#431C00',
-        }}
-        text2Style={{
-          fontSize: 14,
-          color: colorScheme === 'dark' ? '#E27676' : '#B57640',
-        }}
-      />
-    ),
-  };
+  const appTheme = colorScheme === 'dark' ? 'dark' : 'light';
 
   return (
     <SafeAreaProvider>
@@ -143,7 +145,6 @@ function RootLayoutNav() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         </Stack>
       </ThemeProvider>
-      <Toast config={toastConfig} />
     </SafeAreaProvider>
   );
 }
