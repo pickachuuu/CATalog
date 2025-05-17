@@ -102,7 +102,7 @@ export default function ProductsScreen() {
         text1: 'Product Added',
         text2: `${newProduct.name} has been added successfully`,
         visibilityTime: 2000,
-        position: 'bottom',
+        position: 'top',
       });
     } catch (error) {
       console.error('Error saving product:', error);
@@ -112,7 +112,7 @@ export default function ProductsScreen() {
         text1: 'Error',
         text2: 'Failed to add product',
         visibilityTime: 2000,
-        position: 'bottom',
+        position: 'top',
       });
     }
   };
