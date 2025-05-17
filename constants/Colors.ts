@@ -15,15 +15,16 @@ export default {
     shadow: '#9A4600',
   },
   dark: {
-    text: '#FFE0DE',
-    background: '#1A0606',
-    secondaryBackground: '#2B0D0D',
-    borderColor: '#572828',
-    tint: tintColorDark,
-    tabColor: '#240E0E',
-    tabIconDefault: '#E27676',
-    tabIconSelected: tintColorDark,
-    error: '#FF5A5A',
-    shadow: '#4C1212',
-  },
+    text: '#FAF8F6',               // Near-white, warm tone
+    background: '#121212',         // Pure charcoal black
+    secondaryBackground: '#1F1F1F', // Slightly lifted dark gray
+    borderColor: '#333333',        // Subtle gray borders
+    tint: '#FF7F50',               // Vibrant coral-orange
+    tabColor: '#1A1A1A',
+    tabIconDefault: '#BFB5AD',     // Muted bone/cream icon
+    tabIconSelected: '#FF7F50',    // Strong coral accent
+    error: '#FF5C5C',
+    shadow: '#1A1A1A',
+  }
+  
 };
