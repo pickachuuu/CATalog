@@ -10,10 +10,19 @@ import { useColorScheme } from '@/components/useColorScheme';
 import { useData } from '@/context/DataContext';
 import { Surface } from 'react-native-paper';
 
-// Helper function to generate random colors for categories
-const getRandomColor = () => {
-  const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
-  return colors[Math.floor(Math.random() * colors.length)];
+// Helper function to generate unique colors for categories
+const colorPool = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'];
+let usedColors: string[] = [];
+
+const getUniqueColor = () => {
+  if (usedColors.length >= colorPool.length) {
+    // If all colors are used, start reusing from the beginning
+    usedColors = [];
+  }
+  const availableColors = colorPool.filter(color => !usedColors.includes(color));
+  const color = availableColors[Math.floor(Math.random() * availableColors.length)];
+  usedColors.push(color);
+  return color;
 };
 
 export default function DashboardScreen() {
@@ -56,6 +65,8 @@ export default function DashboardScreen() {
 
   // Calculate category distribution using useMemo to prevent unnecessary recalculations
   const categoryData = useMemo(() => {
+    // Reset usedColors for each calculation
+    usedColors = [];
     const categoryMap = new Map<string, { name: string; population: number; color: string; legendFontColor: string }>();
     
     // Initialize with all categories
@@ -63,7 +74,7 @@ export default function DashboardScreen() {
       categoryMap.set(category.id, {
         name: category.name,
         population: 0,
-        color: getRandomColor(),
+        color: getUniqueColor(),
         legendFontColor: '#7F7F7F',
       });
     });
